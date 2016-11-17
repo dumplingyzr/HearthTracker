@@ -1,17 +1,18 @@
 package dumplingyzr.hearthtracker;
 
+import android.os.AsyncTask;
+
 import com.google.gson.reflect.TypeToken;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.async.Callback;
-import com.mashape.unirest.http.exceptions.UnirestException;
-
-import java.util.ArrayList;
-import java.util.concurrent.Future;
-
 import com.google.gson.Gson;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import java.util.ArrayList;
+import java.io.IOException;
+
+import timber.log.Timber;
 
 /**
  * Created by dumplingyzr on 2016/11/16.
@@ -19,7 +20,7 @@ import com.google.gson.Gson;
 
 public class CardAPI {
     private static String locale;
-    private static JsonNode cardsJSON;
+    private static String cardsJSON;
     private static Object lock = new Object();
     private static ArrayList<Card> cards;
     private static boolean cardsReady;
@@ -28,30 +29,36 @@ public class CardAPI {
         locale = "enUS";
     }
 
-    public static void getCards(){
-        String endpoint = "https://omgvamp-hearthstone-v1.p.mashape.com/cards";
-        Future<HttpResponse<JsonNode>> future = Unirest.post(endpoint)
-                .header("X-Mashape-Key", "BqZIaED48jmshtVQ2eqTu3lXup11p1rEs85jsnKl2ZUKSUbPr3")
-                .field("collectible", 1)
-                .field("locale", locale)
-                .asJsonAsync(new Callback<JsonNode>() {
+    private class GetCardsTask extends AsyncTask<String, Void, String> {
+        String endpoint = "https://api.hearthstonejson.com/v1/latest/" + locale + "/cards.json";
+        Request request = new Request.Builder().url(endpoint).get().build();
+        Response response = null;
 
-                    public void failed(UnirestException e) {
-                        System.out.println("The request has failed");
-                    }
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                response = new OkHttpClient().newCall(request).execute();
+                return new String(response.body().bytes());
+            } catch (IOException e) {
+                return "Unable to retrieve cards";
+            }
 
-                    public void completed(HttpResponse<JsonNode> response) {
-                        cardsJSON = response.getBody();
-                    }
+        }
 
-                    public void cancelled() {
-                        System.out.println("The request has been cancelled");
-                    }
+        @Override
+        protected void onPostExecute(String result) {
+            cardsJSON = result;
+            storeCards();
+        }
+    }
 
-                });
+    public void getCards(){
+        new GetCardsTask().execute();
+    }
 
+    private static void storeCards() {
         synchronized (lock) {
-            ArrayList<Card> list = new Gson().fromJson(cardsJSON.toString(), new TypeToken<ArrayList<Card>>() {
+            ArrayList<Card> list = new Gson().fromJson(cardsJSON, new TypeToken<ArrayList<Card>>() {
             }.getType());
             for(Card x:list){
                 System.out.println(x);
@@ -59,5 +66,6 @@ public class CardAPI {
             cards = list;
             cardsReady = true;
         }
+        cardsReady = true;
     }
 }
