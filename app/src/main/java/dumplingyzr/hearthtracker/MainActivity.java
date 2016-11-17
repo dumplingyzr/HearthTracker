@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +17,9 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE_PERMISSIONS = 1;
     private static final int REQUEST_CODE_GET_OVERLAY_PERMISSIONS = 2;
+    public static final String HEARTHSTONE_FILES_DIR = Environment.getExternalStorageDirectory().getPath()+
+            "Android/data/com.blizzard.wtcg.hearthstone/files/";
+    public static final String HEARTHSTONE_PACKAGE_ID = "com.blizzard.wtcg.hearthstone";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,9 @@ public class MainActivity extends Activity {
                 LaunchLogWindow();
             }
         });
+        CardAPI test = new CardAPI();
+        test.init();
+        test.getCards();
     }
 
     private boolean hasAllPermissions() {
