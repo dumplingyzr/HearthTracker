@@ -40,9 +40,8 @@ public class MainActivity extends Activity {
                 LaunchLogWindow();
             }
         });
-        CardAPI test = new CardAPI();
-        test.init();
-        test.getCards();
+        new CardAPI().init();
+
     }
 
     private boolean hasAllPermissions() {

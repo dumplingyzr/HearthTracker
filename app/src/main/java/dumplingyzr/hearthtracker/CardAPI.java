@@ -19,37 +19,37 @@ import java.util.Comparator;
  */
 
 public class CardAPI {
-    private static String locale;
-    private static String cardsJSON;
-    private static Object lock = new Object();
-    private static ArrayList<Card> cards;
-    private static boolean cardsReady;
+    private static String sLocale;
+    private static String sCardsJson;
+    private static Object sLock = new Object();
+    private static ArrayList<Card> sCards;
+    private static boolean sCardsReady;
     
     public void init(){
-        locale = "enUS";
+        sLocale = "enUS";
         new GetCardsTask().execute();
     }
 
     public static boolean isReady(){
-        return cardsReady;
+        return sCardsReady;
     }
 
     public static Card getCard(String key) {
-        synchronized (lock) {
-            if (cards == null) {
+        synchronized (sLock) {
+            if (sCards == null) {
                 return Card.unknown();
             }
-            int index = Collections.binarySearch(cards, key);
+            int index = Collections.binarySearch(sCards, key);
             if (index < 0) {
                 return Card.unknown();
             } else {
-                return cards.get(index);
+                return sCards.get(index);
             }
         }
     }
 
     private class GetCardsTask extends AsyncTask<Void, Void, String> {
-        String endpoint = "https://api.hearthstonejson.com/v1/latest/" + locale + "/cards.collectible.json";
+        String endpoint = "https://api.hearthstonejson.com/v1/latest/" + sLocale + "/cards.collectible.json";
         Request request = new Request.Builder().url(endpoint).get().build();
         Response response = null;
 
@@ -65,14 +65,14 @@ public class CardAPI {
 
         @Override
         protected void onPostExecute(String result) {
-            cardsJSON = result;
+            sCardsJson = result;
             storeCards();
         }
     }
 
     private static void storeCards() {
-        synchronized (lock) {
-            ArrayList<Card> list = new Gson().fromJson(cardsJSON, new TypeToken<ArrayList<Card>>() {
+        synchronized (sLock) {
+            ArrayList<Card> list = new Gson().fromJson(sCardsJson, new TypeToken<ArrayList<Card>>() {
             }.getType());
             Collections.sort(list, new Comparator<Card>(){
                 public int compare(Card c1, Card c2)
@@ -80,8 +80,8 @@ public class CardAPI {
                     return c1.id.compareTo(c2.id);
                 }
             });
-            cards = list;
+            sCards = list;
         }
-        cardsReady = true;
+        sCardsReady = true;
     }
 }

@@ -44,6 +44,8 @@ public class LogWindow extends Service {
         Button stop = (Button) mv.findViewById(R.id.stop);
         final TextView tv = (TextView) mv.findViewById(R.id.tv);
 
+
+
         mv.setOnTouchListener(new View.OnTouchListener() {
             WindowManager.LayoutParams updatedParameters = params;
             double x;
