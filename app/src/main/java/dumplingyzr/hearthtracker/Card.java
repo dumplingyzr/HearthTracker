@@ -1,5 +1,6 @@
 package dumplingyzr.hearthtracker;
 
+import java.util.InputMismatchException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,33 +30,36 @@ public class Card implements Comparable<String> {
     public static final String TYPE_SPELL = "SPELL";
 
     public String name;
+    public String id;
     public String playerClass;
     public Integer cost;
-    public String id;
+    public Integer attack;
+    public Integer health;
+    public Integer durability;
     public String rarity;
     public String type;
     public String text;
     public String race;
     public String set;
-    public Boolean collectible;
+    //public Boolean collectible; Only getting collectible cards from API
 
     @Override
     public int compareTo(String o) {
         return id.compareTo(o);
     }
 
-    public static Card unknown() {
-        Card card = new Card();
-        card.name = "?";
-        card.id = "?";
-        card.type = TYPE_UNKNOWN;
-        card.cost = 0;
-        return card;
-    }
-
     @Override
     public String toString() {
         return name + "(" + id + ")";
+    }
+
+    public static Card unknown() {
+        Card card = new Card();
+        card.name = "unknown";
+        card.id = "unknown";
+        card.type = TYPE_UNKNOWN;
+        card.cost = -1;
+        return card;
     }
 
     public static int heroIdToClassIndex(String heroId) {
