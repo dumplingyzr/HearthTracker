@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class LogWindow extends Service {
@@ -28,10 +30,10 @@ public class LogWindow extends Service {
         final WindowManager  wm = (WindowManager)  getSystemService(WINDOW_SERVICE);
         final LayoutInflater ll = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
-        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
+        int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150, getResources().getDisplayMetrics());
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                height, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_PHONE,
+                width, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.START | Gravity.CENTER;
@@ -42,9 +44,11 @@ public class LogWindow extends Service {
         wm.addView(mv, params);
 
         Button stop = (Button) mv.findViewById(R.id.stop);
-        final TextView tv = (TextView) mv.findViewById(R.id.tv);
+        final TextView tv = (TextView) mv.findViewById(R.id.textView);
+        final ScrollView sv = (ScrollView) mv.findViewById(R.id.scrollView);
 
-
+        LogParserTask mLogReaderThread;
+        mLogReaderThread = LogParser.init(sv, tv, "Power");
 
         mv.setOnTouchListener(new View.OnTouchListener() {
             WindowManager.LayoutParams updatedParameters = params;

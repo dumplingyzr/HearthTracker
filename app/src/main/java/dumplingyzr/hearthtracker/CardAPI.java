@@ -49,7 +49,7 @@ public class CardAPI {
     }
 
     private class GetCardsTask extends AsyncTask<Void, Void, String> {
-        String endpoint = "https://api.hearthstonejson.com/v1/latest/" + sLocale + "/cards.collectible.json";
+        String endpoint = "https://api.hearthstonejson.com/v1/latest/" + sLocale + "/cards.json";
         Request request = new Request.Builder().url(endpoint).get().build();
         Response response = null;
 

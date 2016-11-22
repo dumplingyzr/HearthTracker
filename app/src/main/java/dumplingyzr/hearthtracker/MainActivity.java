@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE_PERMISSIONS = 1;
     private static final int REQUEST_CODE_GET_OVERLAY_PERMISSIONS = 2;
     public static final String HEARTHSTONE_FILES_DIR = Environment.getExternalStorageDirectory().getPath()+
-            "Android/data/com.blizzard.wtcg.hearthstone/files/";
+            "/Android/data/com.blizzard.wtcg.hearthstone/files/";
     public static final String HEARTHSTONE_PACKAGE_ID = "com.blizzard.wtcg.hearthstone";
 
     @Override
