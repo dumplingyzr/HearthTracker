@@ -93,5 +93,8 @@ public class MainActivity extends Activity {
         Intent serviceIntent = new Intent();
         serviceIntent.setClass(MainActivity.this, LogWindow.class);
         startService(serviceIntent);
+
+        Toast toast = Toast.makeText(this, "HearthTracker is started.\nPlease open Hearthstone game.", Toast.LENGTH_LONG);
+        toast.show();
     }
 }

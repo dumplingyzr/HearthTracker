@@ -2,21 +2,29 @@ package dumplingyzr.hearthtracker;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.IBinder;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class LogWindow extends Service {
+    private WindowManager mWindowManager;
+    private ArrayList<View> mViews = new ArrayList<>();
+    private int mWindowWidth = dp2Pixel(150);
+    private int mLogHeight;
+    private int mButtonHeight;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -26,73 +34,86 @@ public class LogWindow extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        mWindowManager = (WindowManager)  getSystemService(WINDOW_SERVICE);
+        Point screenSize = new Point();
+        mWindowManager.getDefaultDisplay().getSize(screenSize);
+        mLogHeight = (int) (screenSize.x * 0.8);
+        mButtonHeight =(int) (screenSize.x * 0.1);
 
-        final WindowManager  wm = (WindowManager)  getSystemService(WINDOW_SERVICE);
-        final LayoutInflater ll = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        final LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
-        int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150, getResources().getDisplayMetrics());
-
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                width, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+        WindowManager.LayoutParams logWindowParams = new WindowManager.LayoutParams(
+                mWindowWidth, //width
+                mLogHeight, //height
+                WindowManager.LayoutParams.TYPE_PHONE, //type
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, //flag
                 PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.START | Gravity.CENTER;
-        params.x = 0;
-        params.y = 0;
+        logWindowParams.gravity = Gravity.TOP | Gravity.START;
+        logWindowParams.x = 0;
+        logWindowParams.y = mButtonHeight * 2;
 
-        final ViewGroup mv = (ViewGroup) ll.inflate(R.layout.log_window, null);
-        wm.addView(mv, params);
+        WindowManager.LayoutParams buttonParams = new WindowManager.LayoutParams(
+                mWindowWidth, //width
+                mButtonHeight, //height
+                WindowManager.LayoutParams.TYPE_PHONE, //type
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, //flag
+                PixelFormat.TRANSLUCENT);
+        buttonParams.gravity = Gravity.TOP | Gravity.START;
+        buttonParams.x = 0;
+        buttonParams.y = mButtonHeight;
 
-        Button stop = (Button) mv.findViewById(R.id.stop);
-        final TextView tv = (TextView) mv.findViewById(R.id.textView);
-        final ScrollView sv = (ScrollView) mv.findViewById(R.id.scrollView);
+        final View logView = layoutInflater.inflate(R.layout.log_window, null);
+        logView.setVisibility(View.GONE);
+        final View buttonView = layoutInflater.inflate(R.layout.button_window, null);
+        buttonView.setVisibility(View.GONE);
+        mViews.add(logView);
+        mViews.add(buttonView);
+        mWindowManager.addView(logView, logWindowParams);
+        mWindowManager.addView(buttonView, buttonParams);
+
+        ImageButton buttonStop = (ImageButton) buttonView.findViewById(R.id.stop);
+        final ImageButton buttonHide = (ImageButton) buttonView.findViewById(R.id.hide);
+        ImageButton buttonMenu = (ImageButton) buttonView.findViewById(R.id.menu);
+
+        final TextView tv = (TextView) logView.findViewById(R.id.textView);
+        final ScrollView sv = (ScrollView) logView.findViewById(R.id.scrollView);
 
         LogParserTask mLogReaderThread;
-        mLogReaderThread = LogParser.init(sv, tv, "Power");
+        mLogReaderThread = LogParser.init(sv, tv);
 
-        mv.setOnTouchListener(new View.OnTouchListener() {
-            WindowManager.LayoutParams updatedParameters = params;
-            double x;
-            double y;
-            double pressedX;
-            double pressedY;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-
-                        x = updatedParameters.x;
-                        y = updatedParameters.y;
-
-                        pressedX = event.getRawX();
-                        pressedY = event.getRawY();
-
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        updatedParameters.x = (int) (x + (event.getRawX() - pressedX));
-                        updatedParameters.y = (int) (y + (event.getRawY() - pressedY));
-
-                        wm.updateViewLayout(mv, updatedParameters);
-
-                    default:
-                        break;
-                }
-
-                return false;
-            }
-        });
-
-        stop.setOnClickListener(new View.OnClickListener() {
+        buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                wm.removeView(mv);
+                mWindowManager.removeView(logView);
+                mWindowManager.removeView(buttonView);
                 stopSelf();
                 System.exit(0);
             }
         });
+        buttonHide.setOnClickListener(new View.OnClickListener() {
+            //WindowManager.LayoutParams updatedParameters = mParams;
+            @Override
+            public void onClick(View v) {
+                if(logView.getVisibility() == View.GONE) {
+                    logView.setVisibility(View.VISIBLE);
+                    buttonHide.setImageDrawable(getDrawable(R.drawable.ic_hide_black));
+                }
+                else if(logView.getVisibility() == View.VISIBLE) {
+                    logView.setVisibility(View.GONE);
+                    buttonHide.setImageDrawable(getDrawable(R.drawable.ic_show_black));
+                }
+            }
+        });
+
+        buttonMenu.setOnClickListener(new View.OnClickListener() {
+            //WindowManager.LayoutParams updatedParameters = mParams;
+            @Override
+            public void onClick(View v) {
+                Toast toast = Toast.makeText(getApplicationContext(), "meow", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
+
 
     }
 
@@ -102,4 +123,31 @@ public class LogWindow extends Service {
         stopSelf();
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration c) {
+        super.onConfigurationChanged(c);
+        Point screenSize = new Point();
+        mWindowManager.getDefaultDisplay().getSize(screenSize);
+        if (screenSize.x > screenSize.y) {
+            showAllViews();
+        } else {
+            hideAllViews();
+        }
+    }
+
+    public void hideAllViews() {
+        for (View v:mViews) {
+           v.setVisibility(View.GONE);
+        }
+    }
+
+    public void showAllViews() {
+        for (View v:mViews) {
+            v.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public int dp2Pixel(int pixel) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixel, Resources.getSystem().getDisplayMetrics());
+    }
 }

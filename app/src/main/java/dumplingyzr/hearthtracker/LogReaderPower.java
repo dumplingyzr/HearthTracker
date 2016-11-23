@@ -2,11 +2,8 @@ package dumplingyzr.hearthtracker;
 
 import android.os.Process;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -20,9 +17,10 @@ import timber.log.Timber;
  * Created by dumplingyzr on 2016/11/17.
  */
 
-public class LogReaderRunnable implements Runnable {
-    static final int DISPLAY_LINE = 1;
-    static final int READ_FILE_FINISH = 2;
+public class LogReaderPower implements Runnable {
+    private static final int POWER_TASK = 1;
+    private static final int DISPLAY_LINE = 1;
+    private static final int READ_FILE_FINISH = 2;
 
     private static final int WAITING_FOR_LOG = -1;
     private static final int STATE_IDLE = 0;
@@ -36,6 +34,9 @@ public class LogReaderRunnable implements Runnable {
     private Integer mTurn = 1;
     private int mState = WAITING_FOR_LOG;
     private int mPrevState = STATE_IDLE;
+    private long mPosition = 0;
+    private long mPrevPosition = 0;
+
     private ArrayList<String> mPlayerNames = new ArrayList<>();
     private class Player {
         String name;
@@ -47,25 +48,23 @@ public class LogReaderRunnable implements Runnable {
     private Player mPlayer;
     private Player mOpponent;
 
-    private final String mLogType;
     private boolean mCanceled;
     private ByteBuffer mByteBuffer = ByteBuffer.allocate(1000);
     private String mLine = "";
 
-    final RunnableLogReaderMethods mLogParserTask;
+    final RunnablePowerLogReaderMethods mLogParserTask;
 
-    interface RunnableLogReaderMethods {
-        void setLogReaderThread(Thread currentThread);
+    interface RunnablePowerLogReaderMethods {
+        void setPowerThread(Thread currentThread);
         /**
          * Pass string to be displayed up to LogParserTask
          * @param line
          */
         void setLogReaderLine(String line);
-        void handleLogReaderState(int state);
+        void handlePowerState(int state, int task);
     }
 
-    LogReaderRunnable(RunnableLogReaderMethods parseLogTask, String logType){
-        mLogType = logType;
+    LogReaderPower(RunnablePowerLogReaderMethods parseLogTask){
         mLogParserTask = parseLogTask;
         mCanceled = false;
     }
@@ -74,20 +73,20 @@ public class LogReaderRunnable implements Runnable {
     public void run() {
         try {
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-            mLogParserTask.setLogReaderThread(Thread.currentThread());
-            File file = new File(MainActivity.HEARTHSTONE_FILES_DIR + "Logs/" + mLogType + ".log");
+            mLogParserTask.setPowerThread(Thread.currentThread());
+            File file = new File(MainActivity.HEARTHSTONE_FILES_DIR + "Logs/Power.log");
             FileInputStream fs = new FileInputStream(file);
             FileChannel fc = fs.getChannel();
-            //mBufferedReader = new BufferedReader(fr);
 
             while (!mCanceled) {
                 switch (mState) {
                     case STATE_FINISH:
-                        mCanceled = true;
-                        if (fc != null) fc.close();
+                        mState = STATE_IDLE;
                         break;
                     case WAITING_FOR_LOG:
                         mByteBuffer.clear();
+                        //mPrevPosition = mPosition;
+                        //mPosition =
                         if(fc.read(mByteBuffer) <= 0){
                             Thread.sleep(1000);
                             continue;
@@ -102,7 +101,7 @@ public class LogReaderRunnable implements Runnable {
                 }
             }
         } catch (IOException|InterruptedException e){
-            System.out.println("Failed to open file: " + mLogType + ".log");
+            System.out.println("Failed to open file: Power.log");
             e.printStackTrace();
         }
     }
@@ -165,7 +164,7 @@ public class LogReaderRunnable implements Runnable {
                 if (line.startsWith("CREATE_GAME")) {
                     mState = STATE_CREATE_GAME;
                     mLogParserTask.setLogReaderLine("Game Started!");
-                    mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                 }
                 break;
             case STATE_CREATE_GAME:
@@ -174,7 +173,7 @@ public class LogReaderRunnable implements Runnable {
                     mOpponent = new Player(mPlayerNames.get(1));
                     mState = STATE_INITIAL_HAND;
                     mLogParserTask.setLogReaderLine("Player initial hand:\n");
-                    mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                 } else if (line.startsWith("TAG_CHANGE")) {
                     Pattern p = Pattern.compile(".*Entity=(.*) tag=PLAYSTATE value=PLAYING");
                     Matcher m = p.matcher(line);
@@ -187,13 +186,13 @@ public class LogReaderRunnable implements Runnable {
                 if (line.startsWith("BLOCK_START BlockType=TRIGGER Entity=GameEntity")) {
                     mState = STATE_SWITCH_CARD;
                     mLogParserTask.setLogReaderLine("Player switch card:\n");
-                    mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                 } else if(line.startsWith("SHOW_ENTITY")){
                     Pattern p = Pattern.compile(".*Updating Entity=.* CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mPlayer.name + " draws:\n    " + CardAPI.getCard(m.group(1)).name + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 } else if (line.startsWith("TAG_CHANGE")) {
                     Pattern p = Pattern.compile(".*Entity=(.*) tag=FIRST_PLAYER value=(.)");
@@ -213,20 +212,20 @@ public class LogReaderRunnable implements Runnable {
                 if (line.equals("TAG_CHANGE Entity=GameEntity tag=STEP value=MAIN_START")) {
                     mState = mPlayer.isFirstPlayer ? STATE_PLAYER_TURN : STATE_OPPONENT_TURN;
                     mLogParserTask.setLogReaderLine("Turn " + mTurn.toString() + "\n");
-                    mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                 } else if(line.startsWith("SHOW_ENTITY")){
                     Pattern p = Pattern.compile(".*Updating Entity=.* CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mPlayer.name + " draws:\n    " + CardAPI.getCard(m.group(1)).name + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 } else if(line.startsWith("HIDE_ENTITY")){
                     Pattern p = Pattern.compile(".*name=(.*) id=.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mPlayer.name + " switches out:\n    " + m.group(1) + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 }
                 break;
@@ -241,14 +240,14 @@ public class LogReaderRunnable implements Runnable {
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mPlayer.name + " draws:\n    " + CardAPI.getCard(m.group(1)).name + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=POWER")){
                     Pattern p = Pattern.compile(".*name=(.*) id=.*Target.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mPlayer.name + " plays:\n    " + m.group(1) + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 }
                 break;
@@ -258,20 +257,20 @@ public class LogReaderRunnable implements Runnable {
                 } else if (line.equals("TAG_CHANGE Entity=GameEntity tag=STEP value=MAIN_START")) {
                     mState = STATE_PLAYER_TURN;
                     mLogParserTask.setLogReaderLine("Turn " + mTurn.toString() + "\n");
-                    mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                 } else if(line.startsWith("SHOW_ENTITY")) {
                     Pattern p = Pattern.compile(".*Updating Entity=.*zone=DECK.*CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mOpponent.name + " draws:\n    " + CardAPI.getCard(m.group(1)).name + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=POWER")){
                     Pattern p = Pattern.compile(".*name=(.*) id=.*Target.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mLogParserTask.setLogReaderLine("  " + mOpponent.name + " plays:\n    " + m.group(1) + "\n");
-                        mLogParserTask.handleLogReaderState(DISPLAY_LINE);
+                        mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                     }
                 }
                 break;

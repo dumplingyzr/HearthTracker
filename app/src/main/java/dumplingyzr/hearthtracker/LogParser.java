@@ -3,37 +3,40 @@ package dumplingyzr.hearthtracker;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import timber.log.Timber;
 
 /**
  * Created by dumplingyzr on 2016/11/17.
  */
 
 public class LogParser {
-    static final int DISPLAY_LINE = 1;
-    static final int READ_FILE_FINISH = 2;
+    private static final int POWER_TASK = 1;
+    private static final int DISPLAY_LINE = 1;
+    private static final int READ_FILE_FINISH = 2;
+
+    private static final int LOADING_SCREEN_TASK = 2;
+    private static final int STATE_GAME_START = 1;
+    private static final int STATE_GAME_END = 2;
+
+    private static final int UI_DISPLAY_LINE = 1;
+    private static final int UI_CLEAR_WINDOW = 2;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT;
     private static final int CORE_POOL_SIZE = 4;
     private static final int MAXIMUM_POOL_SIZE = 4;
 
-    private final BlockingQueue<Runnable> mLogReaderThreadQueue;
+    private final BlockingQueue<Runnable> mPowerThreadQueue;
+    private final BlockingQueue<Runnable> mLoadingScreenThreadQueue;
     private final BlockingQueue<LogParserTask> mLogParserTaskQueue;
-    private final ThreadPoolExecutor mLogReaderThreadPool;
+    private final ThreadPoolExecutor mPowerThreadPool;
+    private final ThreadPoolExecutor mLoadingScreenThreadPool;
 
     private Handler mHandler;
     private TextView mTextView;
@@ -54,10 +57,13 @@ public class LogParser {
     }
 
     private LogParser() {
-        mLogReaderThreadQueue = new LinkedBlockingQueue<>();
         mLogParserTaskQueue = new LinkedBlockingQueue<>();
-        mLogReaderThreadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
-                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, mLogReaderThreadQueue);
+        mPowerThreadQueue = new LinkedBlockingQueue<>();
+        mLoadingScreenThreadQueue = new LinkedBlockingQueue<>();
+        mPowerThreadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
+                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, mPowerThreadQueue);
+        mLoadingScreenThreadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
+                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, mLoadingScreenThreadQueue);
 
         mHandler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -65,8 +71,12 @@ public class LogParser {
                 LogParserTask logParserTask = (LogParserTask) inputMessage.obj;
                 mTextView = logParserTask.getTextView();
                 mScrollView = logParserTask.getScrollView();
-                if(inputMessage.what == DISPLAY_LINE) {
+                if(inputMessage.what == UI_DISPLAY_LINE) {
                     mTextView.append(logParserTask.getLine());
+                    mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                }
+                if(inputMessage.what == UI_CLEAR_WINDOW) {
+                    mTextView.clearComposingText();
                     mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             }
@@ -75,23 +85,26 @@ public class LogParser {
 
     public static LogParserTask init(
             ScrollView scrollView,
-            TextView textView,
-            String logType) {
+            TextView textView) {
 
         logParserTask = sInstance.mLogParserTaskQueue.poll();
         if (null == logParserTask) {
-            logParserTask = new LogParserTask(logType);
+            logParserTask = new LogParserTask();
         }
 
         logParserTask.init(LogParser.sInstance, textView, scrollView);
 
-        sInstance.mLogReaderThreadPool.execute(logParserTask.getLogReaderRunnable());
+        sInstance.mPowerThreadPool.execute(logParserTask.getPowerRunnable());
+        sInstance.mLoadingScreenThreadPool.execute(logParserTask.getLoadingScreenRunnable());
 
         return logParserTask;
     }
 
-    public void handleState(LogParserTask logParserTask, int state) {
-        Message completeMessage = mHandler.obtainMessage(state, logParserTask);
+    public void handleState(LogParserTask logParserTask, int state, int task) {
+        int managerState = -1;
+        if(state == DISPLAY_LINE && task == POWER_TASK) managerState = UI_DISPLAY_LINE;
+        if(state == STATE_GAME_END && task == LOADING_SCREEN_TASK) managerState = UI_CLEAR_WINDOW;
+        Message completeMessage = mHandler.obtainMessage(managerState, logParserTask);
         completeMessage.sendToTarget();
     }
 
