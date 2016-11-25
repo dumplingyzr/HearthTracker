@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#00000000"
     android:orientation="vertical"
-    tools:context="LogWindow"
+    tools:context=".MainWindow"
     android:id="@+id/rel">
     <ScrollView
         android:id="@+id/scrollView"
@@ -15,7 +15,7 @@
         <TextView
             android:id="@+id/textView"
             android:maxLines="9000000"
-            android:textSize="12sp"
+            android:textSize="15sp"
             android:textColor="#ffffff"
             android:layout_gravity="fill"
             android:layout_width="match_parent"

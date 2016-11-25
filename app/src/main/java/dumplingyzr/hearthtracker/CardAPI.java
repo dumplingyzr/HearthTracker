@@ -47,6 +47,20 @@ public class CardAPI {
             }
         }
     }
+    public static Card getRandomCard() {
+        synchronized (sLock) {
+            if (sCards == null) {
+                return Card.unknown();
+            }
+            int index = (int)(Math.random() * sCards.size());
+            if (index < 0) {
+                return Card.unknown();
+            } else {
+                return sCards.get(index);
+            }
+        }
+    }
+
 
     private class GetCardsTask extends AsyncTask<Void, Void, String> {
         String endpoint = "https://api.hearthstonejson.com/v1/latest/" + sLocale + "/cards.json";

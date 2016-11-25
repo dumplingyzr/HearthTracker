@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".LogWindow"
+            android:name=".MainWindow"
             android:configChanges="orientation">
         </service>
     </application>

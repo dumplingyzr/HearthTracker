@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class LogParser {
     private static final int POWER_TASK = 1;
     private static final int DISPLAY_LINE = 1;
-    private static final int READ_FILE_FINISH = 2;
+    private static final int CLEAR_WINDOW = 2;
 
     private static final int LOADING_SCREEN_TASK = 2;
     private static final int STATE_GAME_START = 1;
@@ -76,7 +76,7 @@ public class LogParser {
                     mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
                 }
                 if(inputMessage.what == UI_CLEAR_WINDOW) {
-                    mTextView.clearComposingText();
+                    mTextView.setText("");
                     mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             }
@@ -103,7 +103,7 @@ public class LogParser {
     public void handleState(LogParserTask logParserTask, int state, int task) {
         int managerState = -1;
         if(state == DISPLAY_LINE && task == POWER_TASK) managerState = UI_DISPLAY_LINE;
-        if(state == STATE_GAME_END && task == LOADING_SCREEN_TASK) managerState = UI_CLEAR_WINDOW;
+        if(state == CLEAR_WINDOW && task == POWER_TASK) managerState = UI_CLEAR_WINDOW;
         Message completeMessage = mHandler.obtainMessage(managerState, logParserTask);
         completeMessage.sendToTarget();
     }

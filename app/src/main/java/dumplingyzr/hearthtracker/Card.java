@@ -41,7 +41,7 @@ public class Card implements Comparable<String> {
     public String text;
     public String race;
     public String set;
-    //public Boolean collectible; Only getting collectible cards from API
+    public Boolean collectible;
 
     @Override
     public int compareTo(String o) {
