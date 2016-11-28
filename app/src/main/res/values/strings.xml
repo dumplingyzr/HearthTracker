@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">HearthTracker</string>
+    <string-array name="card_cost">
+        <item>All</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7+</item>
+    </string-array>
+    <string-array name="card_set">
+        <item>All</item>
+        <item>Karazhan</item>
+        <item>Old Gods</item>
+        <item>League of Explorers</item>
+        <item>Grand Tournament</item>
+        <item>Blackrock Mountain</item>
+        <item>Classic</item>
+        <item>Basic</item>
+    </string-array>
 </resources>
