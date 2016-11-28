@@ -30,6 +30,9 @@ public class MainWindow extends Service {
     private int mLogHeight;
     private int mButtonHeight;
 
+    private static final int WITH_COUNT = 0;
+    private static final int WITHOUT_COUNT = 1;
+
     private CardListAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -96,18 +99,14 @@ public class MainWindow extends Service {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        ArrayList<Card> cards = new ArrayList<>();
-        cards.add(CardAPI.getCard("AT_001"));
-        cards.add(CardAPI.getCard("AT_002"));
-        cards.add(CardAPI.getCard("AT_003"));
-        mAdapter = new CardListAdapter(cards);
+        mAdapter = new CardListAdapter();
         mRecyclerView.setAdapter(mAdapter);
+        //mRecyclerView.setItemAnimator(RecyclerView.ItemAnimator);
 
         mWindowManager.addView(recyclerView, logWindowParams);
 
-
         LogParserTask mLogReaderThread;
-        //mLogReaderThread = LogParser.init(recyclerView);
+        mLogReaderThread = LogParser.init(mAdapter);
         //mLogReaderThread = LogParser.init(sv, tv);
 
         buttonStop.setOnClickListener(new View.OnClickListener() {

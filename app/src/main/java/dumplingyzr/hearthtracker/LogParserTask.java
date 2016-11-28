@@ -16,11 +16,12 @@ import dumplingyzr.hearthtracker.LogReaderLoadingScreen.RunnableLoadingScreenLog
 public class LogParserTask implements
         RunnablePowerLogReaderMethods, RunnableLoadingScreenLogReaderMethods {
     private Queue<String> mStringQueue;
+    private Queue<Card> mCardQueue;
     private Thread mCurrentThread;
     private Runnable mPowerReaderRunnable;
     private Runnable mLoadingScreenReaderRunnable;
-    private WeakReference<TextView> mTextWeakRef;
-    private WeakReference<ScrollView> mScrollWeakRef;
+    private WeakReference<CardListAdapter> mCardListAdapterWeakRef;
+    //private WeakReference<ScrollView> mScrollWeakRef;
 
     private static LogParser sLogParser;
 
@@ -49,17 +50,21 @@ public class LogParserTask implements
     @Override
     public void setLogReaderLine(String line) { mStringQueue.add(line); }
 
+    @Override
+    public void setLogReaderCard(Card card) { mCardQueue.add(card); }
+
     public String getLine() { return mStringQueue.poll(); }
+    public Card getCard() { return mCardQueue.poll(); }
 
     public void init(
             LogParser logParser,
-            TextView textView,
-            ScrollView scrollView) {
+            CardListAdapter cardListAdapter) {
 
         sLogParser = logParser;
-        mStringQueue = new LinkedList<>() ;
-        mTextWeakRef = new WeakReference<>(textView);
-        mScrollWeakRef = new WeakReference<>(scrollView);
+        mStringQueue = new LinkedList<>();
+        mCardQueue = new LinkedList<>();
+        mCardListAdapterWeakRef = new WeakReference<>(cardListAdapter);
+        //mScrollWeakRef = new WeakReference<>(scrollView);
     }
 
     public Thread getCurrentThread() {
@@ -73,8 +78,14 @@ public class LogParserTask implements
             mCurrentThread = thread;
         }
     }
+    public CardListAdapter getCardListAdapter() {
+        if (mCardListAdapterWeakRef != null) {
+            return mCardListAdapterWeakRef.get();
+        }
+        return null;
+    }
 
-    public TextView getTextView() {
+    /*public TextView getTextView() {
         if (mTextWeakRef != null) {
             return mTextWeakRef.get();
         }
@@ -86,7 +97,7 @@ public class LogParserTask implements
             return mScrollWeakRef.get();
         }
         return null;
-    }
+    }*/
 
     Runnable getPowerRunnable() {
         return mPowerReaderRunnable;

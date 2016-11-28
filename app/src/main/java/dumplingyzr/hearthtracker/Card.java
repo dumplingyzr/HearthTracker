@@ -37,11 +37,11 @@ public class Card implements Comparable<String> {
     public Integer health;
     public Integer durability;
     public String rarity;
-    public String type;
+    public String type = TYPE_UNKNOWN;
     public String text;
     public String race;
     public String set;
-    public Boolean collectible;
+    public Boolean collectible = false;
 
     @Override
     public int compareTo(String o) {

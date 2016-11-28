@@ -8,21 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.github.florent37.viewanimator.ViewAnimator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
 
 
 /**
  * Created by dumplingyzr on 2016/11/24.
  */
 
-public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHolder>{
+public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHolder>{
     private static final int IDLE = 0;
     private static final int SLIDE_IN = 1;
     private static final int SLIDE_OUT = 2;
@@ -30,6 +25,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     private static final int FLASH = 4;
 
     private SortedList<Card> mCards;
+    private Deck mDeck;
     private HashMap<String, Integer> mCardCount = new HashMap<>();
     private int mAnimatePosition = -1;
 
@@ -43,14 +39,26 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     }
 
     @Override
-    public CardListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public DeckEditAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
         View view = viewHolder.mView;
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int pos = viewHolder.getAdapterPosition();
+                if (pos < 0) return;
+                Card c = mCards.get(pos);
+                if (mDeck.removeCard(c)) {
+                    removeCard(c);
+                }
+            }
+        });
+
         TextView textViewName = (TextView) view.findViewById(R.id.card);
         TextView textViewCost = (TextView) view.findViewById(R.id.cost);
         TextView textViewCount = (TextView) view.findViewById(R.id.count);
@@ -77,7 +85,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         return mCards.size();
     }
 
-    public CardListAdapter() {
+    public DeckEditAdapter(Deck deck) {
+        mDeck = deck;
         mCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
@@ -139,7 +148,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                     return;
                 } else {
                     mCardCount.remove(card.id);
-                    mCards.removeItemAt(findCardById(card.id));
+                    mCards.removeItemAt(i);
                     return;
                 }
             }
@@ -151,13 +160,6 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         mCards.clear();
         mCardCount.clear();
         notifyItemRangeRemoved(0, size);
-    }
-
-    public int findCardById(String key){
-        for(int i=0;i<mCards.size();i++){
-            if(mCards.get(i).id.equals(key)) return i;
-        }
-        return -1;
     }
 
 }

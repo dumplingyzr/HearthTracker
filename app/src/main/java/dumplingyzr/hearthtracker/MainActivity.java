@@ -2,7 +2,6 @@ package dumplingyzr.hearthtracker;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,11 +9,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 1;
     private static final int REQUEST_CODE_GET_OVERLAY_PERMISSIONS = 2;
     public static final String HEARTHSTONE_FILES_DIR = Environment.getExternalStorageDirectory().getPath()+
@@ -26,23 +28,40 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         HearthTrackerApplication.setContext(this);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        Button button = (Button) findViewById(R.id.btn);
+        Button buttonStart = (Button) findViewById(R.id.start);
+        Button buttonNewDeck = (Button) findViewById(R.id.new_deck);
 
         if (hasAllPermissions()) {
-            button.setText("Start HearthTracker");
+            buttonStart.setText("Start HearthTracker");
         } else {
-            button.setText("Authorize and start HearthTracker");
+            buttonStart.setText("Authorize and start HearthTracker");
         }
 
-        button.setOnClickListener(new View.OnClickListener() {
+        buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LaunchLogWindow();
             }
         });
+
+        buttonNewDeck.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                LaunchNewDeckActivity();
+            }
+        });
+
         new CardAPI().init();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     private boolean hasAllPermissions() {
@@ -97,5 +116,11 @@ public class MainActivity extends Activity {
 
         Toast toast = Toast.makeText(this, "HearthTracker is started.\nPlease open Hearthstone game.", Toast.LENGTH_LONG);
         toast.show();
+    }
+
+    private void LaunchNewDeckActivity() {
+        Intent newIntent = new Intent();
+        newIntent.setClass(this, DeckCreateActivity.class);
+        startActivity(newIntent);
     }
 }

@@ -19,6 +19,8 @@ public class LogParser {
     private static final int POWER_TASK = 1;
     private static final int DISPLAY_LINE = 1;
     private static final int CLEAR_WINDOW = 2;
+    private static final int DISPLAY_CARD = 3;
+    private static final int REMOVE_CARD = 4;
 
     private static final int LOADING_SCREEN_TASK = 2;
     private static final int STATE_GAME_START = 1;
@@ -26,6 +28,8 @@ public class LogParser {
 
     private static final int UI_DISPLAY_LINE = 1;
     private static final int UI_CLEAR_WINDOW = 2;
+    private static final int UI_DISPLAY_CARD = 3;
+    private static final int UI_REMOVE_CARD = 4;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT;
@@ -39,8 +43,9 @@ public class LogParser {
     private final ThreadPoolExecutor mLoadingScreenThreadPool;
 
     private Handler mHandler;
-    private TextView mTextView;
-    private ScrollView mScrollView;
+    private CardListAdapter mCardListAdapter;
+    //private TextView mTextView;
+    //private ScrollView mScrollView;
     private static LogParserTask logParserTask;
     private static LogParser sInstance = null;
     static {
@@ -69,30 +74,37 @@ public class LogParser {
             @Override
             public void handleMessage(Message inputMessage) {
                 LogParserTask logParserTask = (LogParserTask) inputMessage.obj;
-                mTextView = logParserTask.getTextView();
-                mScrollView = logParserTask.getScrollView();
+                mCardListAdapter = logParserTask.getCardListAdapter();
+                //mTextView = logParserTask.getTextView();
+                //mScrollView = logParserTask.getScrollView();
                 if(inputMessage.what == UI_DISPLAY_LINE) {
-                    mTextView.append(logParserTask.getLine());
-                    mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                    //mTextView.append(logParserTask.getLine());
+                    //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
                 }
                 if(inputMessage.what == UI_CLEAR_WINDOW) {
-                    mTextView.setText("");
-                    mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                    //mTextView.setText("");
+                    //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                    mCardListAdapter.clearAll();
+                }
+                if(inputMessage.what == UI_DISPLAY_CARD) {
+                    mCardListAdapter.addCard(logParserTask.getCard());
+                }
+                if(inputMessage.what == UI_REMOVE_CARD) {
+                    mCardListAdapter.removeCard(logParserTask.getCard());
                 }
             }
         };
     }
 
     public static LogParserTask init(
-            ScrollView scrollView,
-            TextView textView) {
+            CardListAdapter cardListAdapter) {
 
         logParserTask = sInstance.mLogParserTaskQueue.poll();
         if (null == logParserTask) {
             logParserTask = new LogParserTask();
         }
 
-        logParserTask.init(LogParser.sInstance, textView, scrollView);
+        logParserTask.init(LogParser.sInstance, cardListAdapter);
 
         sInstance.mPowerThreadPool.execute(logParserTask.getPowerRunnable());
         sInstance.mLoadingScreenThreadPool.execute(logParserTask.getLoadingScreenRunnable());
@@ -103,6 +115,8 @@ public class LogParser {
     public void handleState(LogParserTask logParserTask, int state, int task) {
         int managerState = -1;
         if(state == DISPLAY_LINE && task == POWER_TASK) managerState = UI_DISPLAY_LINE;
+        if(state == DISPLAY_CARD && task == POWER_TASK) managerState = UI_DISPLAY_CARD;
+        if(state == REMOVE_CARD && task == POWER_TASK) managerState = UI_REMOVE_CARD;
         if(state == CLEAR_WINDOW && task == POWER_TASK) managerState = UI_CLEAR_WINDOW;
         Message completeMessage = mHandler.obtainMessage(managerState, logParserTask);
         completeMessage.sendToTarget();
