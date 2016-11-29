@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.HideReturnsTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 
@@ -19,16 +18,24 @@ import java.util.HashMap;
  */
 
 public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.ViewHolder>{
-    private static final int IDLE = 0;
-    private static final int SLIDE_IN = 1;
-    private static final int SLIDE_OUT = 2;
-    private static final int SLIDE_DOWN = 3;
-    private static final int FLASH = 4;
+    private static final String[] SETS = {
+            "",
+            "KARA",
+            "OG",
+            "LOE",
+            "TGT",
+            "BRM",
+            "EXPERT1",
+            "CORE"
+    };
 
     private SortedList<Card> mCards;
+    private SortedList<Card> mFilteredCards;
     private DeckEditAdapter mDeckEditAdapter;
     private HashMap<String, Integer> mCardCount = new HashMap<>();
     private Deck mDeck;
+    private int mClassIndex;
+    private String mClassName;
     private int mAnimatePosition = -1;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -84,13 +91,42 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
         return mCards.size();
     }
 
-    public DeckCreateAdapter(SortedList<Card> cards, Deck deck, DeckEditAdapter deckEditAdapter) {
+    public DeckCreateAdapter(int classIndex, Deck deck, DeckEditAdapter deckEditAdapter) {
         mDeckEditAdapter = deckEditAdapter;
         mDeck = deck;
+        mClassIndex = classIndex;
+        mFilteredCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
+            @Override
+            public int compare(Card c1, Card c2) {
+                int res = c1.cost.compareTo(c2.cost);
+                return res == 0 ? c1.name.compareTo(c2.name) : res;
+            }
+
+            @Override
+            public void onInserted(int position, int count) {}
+
+            @Override
+            public void onRemoved(int position, int count) {}
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {}
+
+            @Override
+            public void onChanged(int position, int count) {}
+
+            @Override
+            public boolean areContentsTheSame(Card c1, Card c2) { return c1.id.equals(c2.id); }
+
+            @Override
+            public boolean areItemsTheSame(Card c1, Card c2) {
+                return c1.id.equals(c2.id);
+            }
+        });
         mCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
-                return c1.cost.compareTo(c2.cost);
+                int res = c1.cost.compareTo(c2.cost);
+                return res == 0 ? c1.name.compareTo(c2.name) : res;
             }
 
             @Override
@@ -124,7 +160,7 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
                 return c1.id.equals(c2.id);
             }
         });
-        mCards = cards;
+        init();
     }
 
     public void addCard(Card card){
@@ -169,4 +205,31 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
         return -1;
     }
 
+    public void filter(int cost, int set, int _class) {
+        mCards = CardAPI.getCardsByClass(mClassIndex);
+        if(cost == 0 && set == 0 && _class == 0) {
+            notifyDataSetChanged();
+            return;
+        }
+        mFilteredCards.clear();
+        for(int i=0;i<mCards.size();i++) {
+            Card c = mCards.get(i);
+            if((cost != 0 && cost != 8 && c.cost != cost-1) || (cost == 8 && c.cost < 7)) continue;
+            if(set != 0 && !c.set.equals(setIndex2String(set))) continue;
+            if(_class == 1 && !c.playerClass.equals(Card.classIndexToPlayerClass(mClassIndex))) continue;
+            if(_class == 2 && !c.playerClass.equals("NEUTRAL")) continue;
+            mFilteredCards.add(c);
+        }
+        mCards = mFilteredCards;
+        notifyDataSetChanged();
+    }
+
+    public void init() {
+        mCards = CardAPI.getCardsByClass(mClassIndex);
+        notifyDataSetChanged();
+    }
+
+    private String setIndex2String (int index) {
+        return SETS[index];
+    }
 }

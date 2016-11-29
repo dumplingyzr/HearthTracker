@@ -113,7 +113,7 @@ public class Card implements Comparable<String> {
     }
 
     public static int playerClassToClassIndex(String playerClass) {
-        for (int i = 0; i < CLASS_INDEX_NEUTRAL; i++) {
+        for (int i = 0; i <= CLASS_INDEX_NEUTRAL; i++) {
             if (classIndexToPlayerClass(i).equals(playerClass)){
                 return i;
             }

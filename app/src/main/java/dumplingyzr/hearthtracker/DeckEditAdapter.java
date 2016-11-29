@@ -90,7 +90,8 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
         mCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
-                return c1.cost.compareTo(c2.cost);
+                int res = c1.cost.compareTo(c2.cost);
+                return res == 0 ? c1.name.compareTo(c2.name) : res;
             }
 
             @Override

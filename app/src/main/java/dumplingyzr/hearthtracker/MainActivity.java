@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         buttonNewDeck.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                LaunchNewDeckActivity();
+                LaunchClassSelectActivity();
             }
         });
 
@@ -111,16 +111,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Intent serviceIntent = new Intent();
-        serviceIntent.setClass(MainActivity.this, MainWindow.class);
+        serviceIntent.setClass(MainActivity.this, TrackerWindow.class);
         startService(serviceIntent);
 
         Toast toast = Toast.makeText(this, "HearthTracker is started.\nPlease open Hearthstone game.", Toast.LENGTH_LONG);
         toast.show();
     }
 
-    private void LaunchNewDeckActivity() {
+    private void LaunchClassSelectActivity() {
         Intent newIntent = new Intent();
-        newIntent.setClass(this, DeckCreateActivity.class);
+        newIntent.setClass(this, ClassSelectActivity.class);
         startActivity(newIntent);
     }
 }

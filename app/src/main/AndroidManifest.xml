@@ -23,8 +23,12 @@
             android:name=".DeckCreateActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name=".ClassSelectActivity"
+            android:screenOrientation="portrait">
+        </activity>
         <service
-            android:name=".MainWindow"
+            android:name=".TrackerWindow"
             android:configChanges="orientation">
         </service>
     </application>

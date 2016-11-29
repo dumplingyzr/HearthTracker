@@ -21,6 +21,8 @@ import java.util.HashMap;
  */
 
 public class CardAPI {
+    public static final int CLASS_INDEX_NEUTRAL = 9;
+
     private static String sLocale;
     private static String sCardsJson;
     private static Object sLock = new Object();
@@ -30,11 +32,12 @@ public class CardAPI {
     private static boolean sCardsReady;
     
     public void init(){
-        sLocale = "enUS";
-        sCardsCollectible = new SortedList<Card>(Card.class, new SortedList.Callback<Card>() {
+        sLocale = "zhCN";
+        sCardsCollectible = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
-                return c1.cost.compareTo(c2.cost);
+                int res = c1.cost.compareTo(c2.cost);
+                return res == 0 ? c1.name.compareTo(c2.name) : res;
             }
 
             @Override
@@ -142,6 +145,7 @@ public class CardAPI {
                 }
             });
             sCardsById = list;
+
             for (Card c:list){
                 sCardsByName.put(c.name, c);
                 if(c.collectible.equals(true) && !c.type.equals("HERO")) sCardsCollectible.add(c);
@@ -150,7 +154,56 @@ public class CardAPI {
         sCardsReady = true;
     }
 
-    public static SortedList<Card> getsCardsCollectible() {
+    public static SortedList<Card> getCardsCollectible() {
         return sCardsCollectible;
+    }
+
+    public static SortedList<Card> getCardsByClass(int classIndex){
+        SortedList<Card> cardsByClass = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
+            @Override
+            public int compare(Card c1, Card c2) {
+                int res = c1.cost.compareTo(c2.cost);
+                return res == 0 ? c1.name.compareTo(c2.name) : res;
+            }
+
+            @Override
+            public void onInserted(int position, int count) {
+                return;
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                return;
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                return;
+            }
+
+            @Override
+            public void onChanged(int position, int count) {
+                return;
+            }
+
+            @Override
+            public boolean areContentsTheSame(Card c1, Card c2) {
+                // return whether the items' visual representations are the same or not.
+                return c1.id.equals(c2.id);
+            }
+
+            @Override
+            public boolean areItemsTheSame(Card c1, Card c2) {
+                return c1.id.equals(c2.id);
+            }
+        });
+        for(int i=0;i<sCardsCollectible.size();i++){
+            Card c = sCardsCollectible.get(i);
+            int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
+            if (cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex){
+                cardsByClass.add(c);
+            }
+        }
+        return cardsByClass;
     }
 }

@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">HearthTracker</string>
-    <string-array name="card_cost">
+    <string-array name="card_cost_filter">
         <item>All</item>
+        <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -10,7 +11,7 @@
         <item>6</item>
         <item>7+</item>
     </string-array>
-    <string-array name="card_set">
+    <string-array name="card_set_filter">
         <item>All</item>
         <item>Karazhan</item>
         <item>Old Gods</item>
@@ -19,5 +20,10 @@
         <item>Blackrock Mountain</item>
         <item>Classic</item>
         <item>Basic</item>
+    </string-array>
+    <string-array name="card_class_filter">
+        <item>All</item>
+        <item>Class</item>
+        <item>Neutral</item>
     </string-array>
 </resources>

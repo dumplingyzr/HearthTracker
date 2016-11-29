@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainWindow extends Service {
+public class TrackerWindow extends Service {
     private Context mContext;
     private WindowManager mWindowManager;
     private ArrayList<View> mViews = new ArrayList<>();

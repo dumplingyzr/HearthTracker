@@ -81,7 +81,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         mCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
-                return c1.cost.compareTo(c2.cost);
+                int res = c1.cost.compareTo(c2.cost);
+                return res == 0 ? c1.name.compareTo(c2.name) : res;
             }
 
             @Override
@@ -139,7 +140,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                     return;
                 } else {
                     mCardCount.remove(card.id);
-                    mCards.removeItemAt(findCardById(card.id));
+                    mCards.removeItemAt(i);
                     return;
                 }
             }
@@ -151,13 +152,6 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         mCards.clear();
         mCardCount.clear();
         notifyItemRangeRemoved(0, size);
-    }
-
-    public int findCardById(String key){
-        for(int i=0;i<mCards.size();i++){
-            if(mCards.get(i).id.equals(key)) return i;
-        }
-        return -1;
     }
 
 }
