@@ -2,12 +2,18 @@ package dumplingyzr.hearthtracker;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Created by dumplingyzr on 2016/11/27.
@@ -37,6 +43,7 @@ public class DeckCreateActivity extends Activity {
         setContentView(R.layout.activity_create_deck);
 
         mClassIndex = getIntent().getIntExtra("classIndex", 1);
+        mDeck.classIndex = mClassIndex;
 
         mCurrDeckView = (RecyclerView) findViewById(R.id.recycler_view_curr_deck);
         mCardPoolView = (RecyclerView) findViewById(R.id.recycler_view_card_pool);
@@ -105,7 +112,18 @@ public class DeckCreateActivity extends Activity {
 
             }
         });
-    }
 
+        Button button = (Button) findViewById(R.id.ok_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mDeck.isComplete()) {
+                    mDeck.saveCards();
+                    Toast toast = Toast.makeText(HearthTrackerApplication.getContext(), "Deck Saved", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+        });
+    }
 
 }

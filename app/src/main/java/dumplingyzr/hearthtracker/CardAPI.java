@@ -1,6 +1,7 @@
 package dumplingyzr.hearthtracker;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
 import com.google.gson.reflect.TypeToken;
@@ -12,9 +13,12 @@ import okhttp3.Response;
 
 import java.util.ArrayList;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by dumplingyzr on 2016/11/16.
@@ -27,13 +31,17 @@ public class CardAPI {
     private static String sCardsJson;
     private static Object sLock = new Object();
     private static ArrayList<Card> sCardsById = new ArrayList<>();
-    private static SortedList<Card> sCardsCollectible;
+    private static SortedList<Card> sStandardCards;
     private static HashMap<String, Card> sCardsByName = new HashMap<>();
     private static boolean sCardsReady;
+
+    private static String[] sStandardSet = {
+            "KARA","OG","TGT","LOE","BRM","EXPERT1","CORE"
+    };
     
     public void init(){
-        sLocale = "zhCN";
-        sCardsCollectible = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
+        sLocale = "enUS";
+        sStandardCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
                 int res = c1.cost.compareTo(c2.cost);
@@ -148,14 +156,15 @@ public class CardAPI {
 
             for (Card c:list){
                 sCardsByName.put(c.name, c);
-                if(c.collectible.equals(true) && !c.type.equals("HERO")) sCardsCollectible.add(c);
+                if(c.set == null) continue;
+                if(isStandard(c.set) && !c.type.equals("HERO") && c.collectible) sStandardCards.add(c);
             }
         }
         sCardsReady = true;
     }
 
-    public static SortedList<Card> getCardsCollectible() {
-        return sCardsCollectible;
+    public static SortedList<Card> getStandardCards() {
+        return sStandardCards;
     }
 
     public static SortedList<Card> getCardsByClass(int classIndex){
@@ -197,13 +206,20 @@ public class CardAPI {
                 return c1.id.equals(c2.id);
             }
         });
-        for(int i=0;i<sCardsCollectible.size();i++){
-            Card c = sCardsCollectible.get(i);
+        for(int i = 0; i< sStandardCards.size(); i++){
+            Card c = sStandardCards.get(i);
             int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
             if (cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex){
                 cardsByClass.add(c);
             }
         }
         return cardsByClass;
+    }
+
+    private static boolean isStandard(String set){
+        for(String s:sStandardSet){
+            if(s.equals(set)) return true;
+        }
+        return false;
     }
 }

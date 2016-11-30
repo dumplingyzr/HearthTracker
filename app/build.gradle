@@ -35,4 +35,5 @@ dependencies {
     compile 'com.github.florent37:viewanimator:1.0.4'
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }
