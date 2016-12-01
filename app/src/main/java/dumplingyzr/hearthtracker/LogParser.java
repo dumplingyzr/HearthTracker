@@ -3,8 +3,6 @@ package dumplingyzr.hearthtracker;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -84,13 +82,13 @@ public class LogParser {
                 if(inputMessage.what == UI_CLEAR_WINDOW) {
                     //mTextView.setText("");
                     //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-                    mCardListAdapter.clearAll();
+                    mCardListAdapter.resetAll();
                 }
                 if(inputMessage.what == UI_DISPLAY_CARD) {
-                    mCardListAdapter.addCard(logParserTask.getCard());
+                    mCardListAdapter.onCardDraw(logParserTask.getCard());
                 }
                 if(inputMessage.what == UI_REMOVE_CARD) {
-                    mCardListAdapter.removeCard(logParserTask.getCard());
+                    mCardListAdapter.onCardDrop(logParserTask.getCard());
                 }
             }
         };

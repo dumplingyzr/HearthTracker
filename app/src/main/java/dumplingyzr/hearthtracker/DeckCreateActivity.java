@@ -119,7 +119,8 @@ public class DeckCreateActivity extends Activity {
             public void onClick(View view) {
                 if (mDeck.isComplete()) {
                     mDeck.saveCards();
-                    Toast toast = Toast.makeText(HearthTrackerApplication.getContext(), "Deck Saved", Toast.LENGTH_SHORT);
+                    CardListAdapter.setActiveDeck(mDeck);
+                    Toast toast = Toast.makeText(HearthTrackerApplication.getContext(), "Deck Saved and activated", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }

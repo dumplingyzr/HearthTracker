@@ -37,6 +37,8 @@ public class TrackerWindow extends Service {
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
 
+
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -140,7 +142,7 @@ public class TrackerWindow extends Service {
             //WindowManager.LayoutParams updatedParameters = mParams;
             @Override
             public void onClick(View v) {
-                mAdapter.addCard(CardAPI.getRandomCard());
+                mAdapter.onCardDraw(CardAPI.getRandomCard());
                 Toast toast = Toast.makeText(getApplicationContext(), "meow", Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -182,4 +184,5 @@ public class TrackerWindow extends Service {
     public int dp2Pixel(int pixel) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixel, Resources.getSystem().getDisplayMetrics());
     }
+
 }

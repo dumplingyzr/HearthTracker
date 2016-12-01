@@ -58,7 +58,7 @@ public class Card implements Comparable<String> {
         card.name = "unknown";
         card.id = "unknown";
         card.type = TYPE_UNKNOWN;
-        card.cost = -1;
+        card.cost = Integer.MAX_VALUE;
         return card;
     }
 

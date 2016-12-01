@@ -10,11 +10,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.florent37.viewanimator.ViewAnimator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 
 
@@ -30,6 +25,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     private static final int FLASH = 4;
 
     private SortedList<Card> mCards;
+    private static Deck sActiveDeck = new Deck();
     private HashMap<String, Integer> mCardCount = new HashMap<>();
     private int mAnimatePosition = -1;
 
@@ -54,18 +50,39 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         TextView textViewName = (TextView) view.findViewById(R.id.card);
         TextView textViewCost = (TextView) view.findViewById(R.id.cost);
         TextView textViewCount = (TextView) view.findViewById(R.id.count);
+        textViewCost.setVisibility(View.VISIBLE);
+        textViewCount.setVisibility(View.VISIBLE);
+
         Card card = mCards.get(position);
         Context context = HearthTrackerApplication.getContext();
 
+        if(card.id.equals("unknown")){
+            textViewName.setText(mCardCount.get(card.id).toString() + " unknown");
+            textViewCost.setVisibility(View.INVISIBLE);
+            textViewCount.setVisibility(View.INVISIBLE);
+            return;
+        }
+
         try {
-            if(card.cost == null) textViewCost.setText("0");
-            else textViewCost.setText(String.format("%d", card.cost));
-            textViewCount.setText(String.format("%d", mCardCount.get(card.id)));
-            textViewName.setText(card.name);
             int drawableId;
             drawableId = context.getResources().getIdentifier(card.id.toLowerCase(), "drawable", context.getPackageName());
             view.setBackground(context.getDrawable(drawableId));
             view.getBackground().setAlpha(191);
+
+            textViewName.setText(card.name);
+
+            if(card.cost == null) { textViewCost.setText("0"); }
+            else { textViewCost.setText(String.format("%d", card.cost)); }
+
+            if(mCardCount.containsKey(card.id) && mCardCount.get(card.id) > 0) {
+                textViewCount.setText(String.format("%d", mCardCount.get(card.id)));
+            }
+            else {
+                textViewCount.setVisibility(View.GONE);
+                view.getBackground().setAlpha(63);
+            }
+
+
         } catch (Resources.NotFoundException e) {
             System.out.println(card.name);
         }
@@ -116,42 +133,59 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 return c1.id.equals(c2.id);
             }
         });
-
+        while(!sActiveDeck.isComplete()){
+            sActiveDeck.addCard(Card.unknown());
+        }
+        mCards = sActiveDeck.getCards();
+        mCardCount.putAll(sActiveDeck.getCardCount());
     }
 
-    public void addCard(Card card){
+    public void onCardDraw(Card card){
         if(mCardCount.containsKey(card.id)) {
-            mCardCount.put(card.id, mCardCount.get(card.id) + 1);
-            //mAnimatePosition = findCardById(card.id);
+            int count = mCardCount.get(card.id);
+            mCardCount.put(card.id, count - 1);
             notifyDataSetChanged();
         } else {
-            mCardCount.put(card.id, 1);
-            mCards.add(card);
-        }
-    }
-
-    public void removeCard(Card card) {
-        for(int i=0;i<mCards.size();i++){
-            if(mCards.get(i).id.equals(card.id)){
-                int count = mCardCount.get(card.id);
-                if(count > 1){
-                    mCardCount.put(card.id, count - 1);
-                    notifyDataSetChanged();
-                    return;
-                } else {
-                    mCardCount.remove(card.id);
-                    mCards.removeItemAt(i);
-                    return;
-                }
+            if (mCardCount.containsKey("unknown") && mCardCount.get("unknown") > 0){
+                mCardCount.put("unknown", mCardCount.get("unknown") - 1);
+                mCards.add(card);
+                mCardCount.put(card.id, 0);
+                if(mCardCount.get("unknown") == 0) { mCards.remove(card.unknown()); }
+                notifyDataSetChanged();
+            } else {
+                Toast toast = Toast.makeText(HearthTrackerApplication.getContext(),"Error Detected",Toast.LENGTH_SHORT);
+                toast.show();
             }
         }
     }
 
-    public void clearAll(){
-        int size = mCards.size();
-        mCards.clear();
-        mCardCount.clear();
-        notifyItemRangeRemoved(0, size);
+    public void onCardDrop(Card card) {
+        for(int i=0;i<mCards.size();i++){
+            if(mCards.get(i).id.equals(card.id)){
+                int count = mCardCount.get(card.id);
+                mCardCount.put(card.id, count + 1);
+                notifyDataSetChanged();
+                return;
+                //} else {
+                //    mCardCount.remove(card.id);
+                //    mCards.removeItemAt(i);
+                //    return;
+                //}
+            }
+        }
+    }
+
+    public void resetAll(){
+        while(!sActiveDeck.isComplete()){
+            sActiveDeck.addCard(Card.unknown());
+        }
+        mCards = sActiveDeck.getCards();
+        mCardCount.putAll(sActiveDeck.getCardCount());
+        notifyDataSetChanged();
+    }
+
+    public static void setActiveDeck(Deck deck){
+        sActiveDeck = deck;
     }
 
 }

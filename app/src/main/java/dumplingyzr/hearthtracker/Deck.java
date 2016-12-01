@@ -69,6 +69,16 @@ public class Deck {
 
     public boolean addCard(Card c){
         if(numOfCards == DECK_SIZE) return false;
+        if(c.id.equals("unknown")) {
+            numOfCards++;
+            if(mCardCount.containsKey(c.id)){
+                mCardCount.put(c.id, mCardCount.get(c.id) + 1);
+            } else {
+                mCardCount.put(c.id, 1);
+                mCards.add(c);
+            }
+            return true;
+        }
 
         if(c.cost != null){
             int cost = c.cost;
@@ -156,4 +166,8 @@ public class Deck {
     public boolean isComplete() {
         return numOfCards == DECK_SIZE;
     }
+
+    public SortedList<Card> getCards(){ return mCards; }
+
+    public HashMap<String, Integer> getCardCount(){ return mCardCount; }
 }

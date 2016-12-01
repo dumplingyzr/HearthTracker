@@ -5,6 +5,7 @@ import android.os.Process;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -76,6 +77,7 @@ public class LogReaderPower implements Runnable {
         try {
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             mLogParserTask.setPowerThread(Thread.currentThread());
+            new PrintWriter(MainActivity.HEARTHSTONE_FILES_DIR + "Logs/Power.log").close();
             File file = new File(MainActivity.HEARTHSTONE_FILES_DIR + "Logs/Power.log");
             FileInputStream fs = new FileInputStream(file);
             FileChannel fc = fs.getChannel();
