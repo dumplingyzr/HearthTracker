@@ -90,18 +90,17 @@ public class Deck {
 
         if(mCardCount.containsKey(c.id)){
             int count = mCardCount.get(c.id);
-            if(count == 1) {
+            if(count == 1 && !c.rarity.equals("LEGENDARY")) {
                 mCardCount.put(c.id, 2);
                 numOfCards++;
                 return true;
-            } else if(count == 2) { return false; }
+            } else { return false; }
         } else {
             mCards.add(c);
             mCardCount.put(c.id, 1);
             numOfCards++;
             return true;
         }
-        return false;
     }
 
     public boolean removeCard(Card c) {

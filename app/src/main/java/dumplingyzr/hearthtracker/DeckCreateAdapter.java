@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.HideReturnsTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import java.util.HashMap;
 public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.ViewHolder>{
     private static final String[] SETS = {
             "",
+            "GANGS",
             "KARA",
             "OG",
             "LOE",
@@ -36,7 +36,7 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
     private Deck mDeck;
     private int mClassIndex;
     private String mClassName;
-    private int mAnimatePosition = -1;
+    private DeckCreateActivity mDeckCreateActivity;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
@@ -60,7 +60,10 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
             @Override
             public void onClick(View view) {
                 Card c = mCards.get(viewHolder.getAdapterPosition());
-                if(mDeck.addCard(c)){ mDeckEditAdapter.addCard(c); }
+                if(mDeck.addCard(c)){
+                    mDeckEditAdapter.addCard(c);
+                    mDeckCreateActivity.updateNumOfCards();
+                }
             }
         });
 
@@ -91,7 +94,8 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
         return mCards.size();
     }
 
-    public DeckCreateAdapter(int classIndex, Deck deck, DeckEditAdapter deckEditAdapter) {
+    public DeckCreateAdapter(DeckCreateActivity parent, int classIndex, Deck deck, DeckEditAdapter deckEditAdapter) {
+        mDeckCreateActivity = parent;
         mDeckEditAdapter = deckEditAdapter;
         mDeck = deck;
         mClassIndex = classIndex;

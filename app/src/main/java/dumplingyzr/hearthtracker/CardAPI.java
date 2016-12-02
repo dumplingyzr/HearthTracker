@@ -36,7 +36,7 @@ public class CardAPI {
     private static boolean sCardsReady;
 
     private static String[] sStandardSet = {
-            "KARA","OG","TGT","LOE","BRM","EXPERT1","CORE"
+            "GANGS","KARA","OG","TGT","LOE","BRM","EXPERT1","CORE"
     };
     
     public void init(){

@@ -13,6 +13,7 @@
     </string-array>
     <string-array name="card_set_filter">
         <item>All</item>
+        <item>Gadgetzan</item>
         <item>Karazhan</item>
         <item>Old Gods</item>
         <item>League of Explorers</item>

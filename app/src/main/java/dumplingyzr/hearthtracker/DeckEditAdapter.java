@@ -18,16 +18,11 @@ import java.util.concurrent.locks.Lock;
  */
 
 public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHolder>{
-    private static final int IDLE = 0;
-    private static final int SLIDE_IN = 1;
-    private static final int SLIDE_OUT = 2;
-    private static final int SLIDE_DOWN = 3;
-    private static final int FLASH = 4;
 
     private SortedList<Card> mCards;
     private Deck mDeck;
     private HashMap<String, Integer> mCardCount = new HashMap<>();
-    private int mAnimatePosition = -1;
+    private DeckCreateActivity mDeckCreateActivity;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
@@ -55,6 +50,7 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
                 Card c = mCards.get(pos);
                 if (mDeck.removeCard(c)) {
                     removeCard(c);
+                    mDeckCreateActivity.updateNumOfCards();
                 }
             }
         });
@@ -85,7 +81,8 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
         return mCards.size();
     }
 
-    public DeckEditAdapter(Deck deck) {
+    public DeckEditAdapter(DeckCreateActivity parent, Deck deck) {
+        mDeckCreateActivity = parent;
         mDeck = deck;
         mCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override

@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileOutputStream;
@@ -36,6 +39,7 @@ public class DeckCreateActivity extends Activity {
     private int mFilterClass;
 
     private Deck mDeck = new Deck();
+    private TextView mNumOfCardsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +51,8 @@ public class DeckCreateActivity extends Activity {
 
         mCurrDeckView = (RecyclerView) findViewById(R.id.recycler_view_curr_deck);
         mCardPoolView = (RecyclerView) findViewById(R.id.recycler_view_card_pool);
-        mCurrDeckAdapter = new DeckEditAdapter(mDeck);
-        mCardPoolAdapter = new DeckCreateAdapter(mClassIndex, mDeck, mCurrDeckAdapter);
+        mCurrDeckAdapter = new DeckEditAdapter(this, mDeck);
+        mCardPoolAdapter = new DeckCreateAdapter(this, mClassIndex, mDeck, mCurrDeckAdapter);
         mCurrDeckLayoutManager = new LinearLayoutManager(this);
         mCardPoolLayoutManager = new LinearLayoutManager(this);
         mCurrDeckView.setLayoutManager(mCurrDeckLayoutManager);
@@ -125,6 +129,11 @@ public class DeckCreateActivity extends Activity {
                 }
             }
         });
-    }
 
+        mNumOfCardsTextView = (TextView) findViewById(R.id.num_of_cards);
+
+    }
+    public void updateNumOfCards(){
+        mNumOfCardsTextView.setText(String.format("%d/30",mDeck.numOfCards));
+    }
 }

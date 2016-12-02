@@ -141,16 +141,18 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     }
 
     public void onCardDraw(Card card){
-        if(mCardCount.containsKey(card.id)) {
+        if(mCardCount.containsKey(card.id) && mCardCount.get(card.id) > 0) {
             int count = mCardCount.get(card.id);
             mCardCount.put(card.id, count - 1);
             notifyDataSetChanged();
         } else {
             if (mCardCount.containsKey("unknown") && mCardCount.get("unknown") > 0){
                 mCardCount.put("unknown", mCardCount.get("unknown") - 1);
+                sActiveDeck.removeCard(card.unknown());
+                sActiveDeck.addCard(card);
                 mCards.add(card);
                 mCardCount.put(card.id, 0);
-                if(mCardCount.get("unknown") == 0) { mCards.remove(card.unknown()); }
+                if(mCardCount.get("unknown") == 0) { mCards.remove(card.unknown());}
                 notifyDataSetChanged();
             } else {
                 Toast toast = Toast.makeText(HearthTrackerApplication.getContext(),"Error Detected",Toast.LENGTH_SHORT);
