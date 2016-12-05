@@ -10,6 +10,6 @@
 
     <item
         android:id="@+id/action_settings"
-        android:title="settings"
-        app:showAsAction="never"/>
+        android:title="Filter"
+        app:showAsAction="ifRoom"/>
 </menu>

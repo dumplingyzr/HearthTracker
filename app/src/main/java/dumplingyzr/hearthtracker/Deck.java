@@ -29,13 +29,18 @@ import java.util.HashMap;
  */
 
 public class Deck {
+    private static final int STANDARD_DECK = 0;
+    private static final int WILD_DECK = 1;
+
     private HashMap<String, Integer> mCardCount = new HashMap<>();
     private SortedList<Card> mCards;
     private int[] mManaCurve = new int[8];
     private static int DECK_SIZE = 30;
+
     public int numOfCards = 0;
     public String name = "custom";
     public int classIndex;
+    public int type = 0;
 
     public Deck(){
         numOfCards = 0;

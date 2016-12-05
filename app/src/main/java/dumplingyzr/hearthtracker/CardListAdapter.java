@@ -72,7 +72,23 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
             textViewName.setText(card.name);
 
             if(card.cost == null) { textViewCost.setText("0"); }
-            else { textViewCost.setText(String.format("%d", card.cost)); }
+            else {
+                textViewCost.setText(String.format("%d", card.cost));
+                switch (card.rarity) {
+                    case "RARE":
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.rare));
+                        break;
+                    case "EPIC":
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.epic));
+                        break;
+                    case "LEGENDARY":
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.legendary));
+                        break;
+                    default:
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.common));
+                        break;
+                }
+            }
 
             if(mCardCount.containsKey(card.id) && mCardCount.get(card.id) > 0) {
                 textViewCount.setText(String.format("%d", mCardCount.get(card.id)));

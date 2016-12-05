@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -54,6 +55,22 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
                 }
             }
         });
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                int action = event.getAction();
+                switch (action){
+                    case MotionEvent.ACTION_DOWN:
+                        view.setAlpha((float)0.5);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        view.setAlpha(1);
+                    default:
+                }
+                return false;
+            }
+        });
 
         TextView textViewName = (TextView) view.findViewById(R.id.card);
         TextView textViewCost = (TextView) view.findViewById(R.id.cost);
@@ -62,8 +79,24 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
         Context context = HearthTrackerApplication.getContext();
 
         try {
-            if(card.cost == null) textViewCost.setText("0");
-            else textViewCost.setText(String.format("%d", card.cost));
+            if(card.cost == null) { textViewCost.setText("0"); }
+            else {
+                textViewCost.setText(String.format("%d", card.cost));
+                switch (card.rarity) {
+                    case "RARE":
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.rare));
+                        break;
+                    case "EPIC":
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.epic));
+                        break;
+                    case "LEGENDARY":
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.legendary));
+                        break;
+                    default:
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.common));
+                        break;
+                }
+            }
             textViewCount.setText(String.format("%d", mCardCount.get(card.id)));
             textViewName.setText(card.name);
             int drawableId;
