@@ -26,6 +26,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
     private SortedList<Card> mCards;
     private static Deck sActiveDeck = new Deck();
+    private static Deck sAddedCards = new Deck();
     private HashMap<String, Integer> mCardCount = new HashMap<>();
     private int mAnimatePosition = -1;
 
@@ -157,6 +158,13 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     }
 
     public void onCardDraw(Card card){
+        if(sAddedCards.removeCard(card)) {
+            int count = mCardCount.get(card.id);
+            mCardCount.put(card.id, count - 1);
+            notifyDataSetChanged();
+            return;
+        }
+
         if(mCardCount.containsKey(card.id) && mCardCount.get(card.id) > 0) {
             int count = mCardCount.get(card.id);
             mCardCount.put(card.id, count - 1);
@@ -184,13 +192,22 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 mCardCount.put(card.id, count + 1);
                 notifyDataSetChanged();
                 return;
-                //} else {
-                //    mCardCount.remove(card.id);
-                //    mCards.removeItemAt(i);
-                //    return;
-                //}
             }
         }
+    }
+
+    public void addCardToDeck(Card card, int count){
+        for(int i=0;i<mCards.size();i++){
+            if(mCards.get(i).id.equals(card.id)){
+                int c = mCardCount.get(card.id);
+                mCardCount.put(card.id, c + count);
+                notifyDataSetChanged();
+                return;
+            }
+        }
+        mCards.add(card);
+        mCardCount.put(card.id, count);
+        notifyDataSetChanged();
     }
 
     public void resetAll(){

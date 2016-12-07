@@ -20,10 +20,12 @@ import timber.log.Timber;
 
 public class LogReaderPower implements Runnable {
     private static final int POWER_TASK = 1;
+
     private static final int DISPLAY_LINE = 1;
     private static final int CLEAR_WINDOW = 2;
     private static final int DISPLAY_CARD = 3;
     private static final int REMOVE_CARD = 4;
+    private static final int ADD_CARD_TO_DECK = 5;
 
     private static final int WAITING_FOR_LOG = -1;
     private static final int STATE_IDLE = 0;
@@ -58,12 +60,9 @@ public class LogReaderPower implements Runnable {
 
     interface RunnablePowerLogReaderMethods {
         void setPowerThread(Thread currentThread);
-        /**
-         * Pass string to be displayed up to LogParserTask
-         * @param line
-         */
         void setLogReaderLine(String line);
-        void setLogReaderCard(Card card);
+        void setLogReaderCard(String cardId);
+        void setLogReaderCardCount(int count);
         void handlePowerState(int state, int task);
     }
 
@@ -203,9 +202,7 @@ public class LogReaderPower implements Runnable {
                     Pattern p = Pattern.compile(".*Updating Entity=.* CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mPlayer.name + " draws:\n    " + CardAPI.getCardById(m.group(1)).name + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        mLogParserTask.setLogReaderCard(CardAPI.getCardById(m.group(1)));
+                        mLogParserTask.setLogReaderCard(m.group(1));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
                 } else if (line.startsWith("TAG_CHANGE")) {
@@ -235,18 +232,14 @@ public class LogReaderPower implements Runnable {
                     Pattern p = Pattern.compile(".*Updating Entity=.* CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mPlayer.name + " draws:\n    " + CardAPI.getCardById(m.group(1)).name + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        mLogParserTask.setLogReaderCard(CardAPI.getCardById(m.group(1)));
+                        mLogParserTask.setLogReaderCard(m.group(1));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
                 } else if(line.startsWith("HIDE_ENTITY")){
-                    Pattern p = Pattern.compile(".*name=(.*) id=.*");
+                    Pattern p = Pattern.compile(".*cardId=(.*) player.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mPlayer.name + " drops:\n    " + m.group(1) + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        mLogParserTask.setLogReaderCard(CardAPI.getCardByName(m.group(1)));
+                        mLogParserTask.setLogReaderCard(m.group(1));
                         mLogParserTask.handlePowerState(REMOVE_CARD, POWER_TASK);
                     }
                 } else if(line.startsWith("TAG_CHANGE")){
@@ -266,19 +259,36 @@ public class LogReaderPower implements Runnable {
                     Pattern p = Pattern.compile(".*Updating Entity=.*zone=DECK.*CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mPlayer.name + " draws:\n    " + CardAPI.getCardById(m.group(1)).name + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        mLogParserTask.setLogReaderCard(CardAPI.getCardById(m.group(1)));
+                        if(m.group(1).equals("LOE_110t")) {
+                            break; //ignore SHOW_ENTITY for BattleCry ancient curse
+                        }
+                        mLogParserTask.setLogReaderCard(m.group(1));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=POWER")){
-                    Pattern p = Pattern.compile(".*name=(.*) id=.*Target.*");
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player.*Target=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mPlayer.name + " plays:\n    " + m.group(1) + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        //mLogParserTask.setLogReaderCard(CardAPI.getCardById(m.group(1)));
-                        //mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                        String s = m.group(1);
+                        if(s.equals("Forgotten Torch")) {
+                            addKnownCardToDeck("LOE_002t", 1);}
+                        if(s.equals("Ancient Shade")) {
+                            addKnownCardToDeck("LOE_110t", 1);}
+                        if(s.equals("Elise Starseeker")) {
+                            addKnownCardToDeck("LOE_019t", 1);}
+                        if(s.equals("Map to the Golden Monkey")) {
+                            addKnownCardToDeck("LOE_019t2", 1);}
+
+                    }
+                } else if(line.startsWith("BLOCK_START BlockType=TRIGGER")){
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player.*Target=.*");
+                    Matcher m = p.matcher(line);
+                    if (m.matches()) {
+                        String s = m.group(1);
+                        if(s.equals("Ancient Curse")) {
+                            mLogParserTask.setLogReaderCard(m.group(2));
+                            mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                        }
                     }
                 } else if(line.startsWith("TAG_CHANGE")){
                     Pattern p = Pattern.compile("TAG_CHANGE Entity=(.*) tag=PLAYSTATE value=(.*)");
@@ -298,19 +308,14 @@ public class LogReaderPower implements Runnable {
                     Pattern p = Pattern.compile(".*Updating Entity=.*zone=DECK.*CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mOpponent.name + " draws:\n    " + CardAPI.getCardById(m.group(1)).name + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        mLogParserTask.setLogReaderCard(CardAPI.getCardById(m.group(1)));
+                        mLogParserTask.setLogReaderCard(m.group(1));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=POWER")){
                     Pattern p = Pattern.compile(".*name=(.*) id=.*Target.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        //mLogParserTask.setLogReaderLine("  " + mOpponent.name + " plays:\n    " + m.group(1) + "\n");
-                        //mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
-                        //mLogParserTask.setLogReaderCard(CardAPI.getCardById(m.group(1)));
-                        //mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+
                     }
                 } else if(line.startsWith("TAG_CHANGE")){
                     Pattern p = Pattern.compile("TAG_CHANGE Entity=(.*) tag=PLAYSTATE value=(.*)");
@@ -322,5 +327,11 @@ public class LogReaderPower implements Runnable {
                 }
                 break;
         }
+    }
+
+    private void addKnownCardToDeck(String cardId, int count){
+        mLogParserTask.setLogReaderCard(cardId);
+        mLogParserTask.setLogReaderCardCount(count);
+        mLogParserTask.handlePowerState(ADD_CARD_TO_DECK, POWER_TASK);
     }
 }

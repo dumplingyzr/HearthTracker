@@ -36,7 +36,7 @@ public class Card implements Comparable<String> {
     public Integer attack;
     public Integer health;
     public Integer durability;
-    public String rarity;
+    public String rarity = "common";
     public String type = TYPE_UNKNOWN;
     public String text;
     public String race;

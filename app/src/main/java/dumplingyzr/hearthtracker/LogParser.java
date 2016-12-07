@@ -19,6 +19,7 @@ public class LogParser {
     private static final int CLEAR_WINDOW = 2;
     private static final int DISPLAY_CARD = 3;
     private static final int REMOVE_CARD = 4;
+    private static final int ADD_CARD_TO_DECK = 5;
 
     private static final int LOADING_SCREEN_TASK = 2;
     private static final int STATE_GAME_START = 1;
@@ -28,6 +29,7 @@ public class LogParser {
     private static final int UI_CLEAR_WINDOW = 2;
     private static final int UI_DISPLAY_CARD = 3;
     private static final int UI_REMOVE_CARD = 4;
+    private static final int UI_ADD_CARD_TO_DECK = 5;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT;
@@ -90,6 +92,9 @@ public class LogParser {
                 if(inputMessage.what == UI_REMOVE_CARD) {
                     mCardListAdapter.onCardDrop(logParserTask.getCard());
                 }
+                if(inputMessage.what == UI_ADD_CARD_TO_DECK) {
+                    mCardListAdapter.addCardToDeck(logParserTask.getCard(), logParserTask.getCardCount());
+                }
             }
         };
     }
@@ -116,6 +121,7 @@ public class LogParser {
         if(state == DISPLAY_CARD && task == POWER_TASK) managerState = UI_DISPLAY_CARD;
         if(state == REMOVE_CARD && task == POWER_TASK) managerState = UI_REMOVE_CARD;
         if(state == CLEAR_WINDOW && task == POWER_TASK) managerState = UI_CLEAR_WINDOW;
+        if(state == ADD_CARD_TO_DECK && task == POWER_TASK) managerState = UI_ADD_CARD_TO_DECK;
         Message completeMessage = mHandler.obtainMessage(managerState, logParserTask);
         completeMessage.sendToTarget();
     }

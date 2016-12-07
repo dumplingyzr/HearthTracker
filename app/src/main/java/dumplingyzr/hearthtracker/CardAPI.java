@@ -40,7 +40,7 @@ public class CardAPI {
     };
     
     public void init(){
-        sLocale = "enUS";
+        sLocale = "zhCN";
         sStandardCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {

@@ -1,8 +1,5 @@
 package dumplingyzr.hearthtracker;
 
-import android.widget.ScrollView;
-import android.widget.TextView;
-
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -16,12 +13,12 @@ import dumplingyzr.hearthtracker.LogReaderLoadingScreen.RunnableLoadingScreenLog
 public class LogParserTask implements
         RunnablePowerLogReaderMethods, RunnableLoadingScreenLogReaderMethods {
     private Queue<String> mStringQueue;
-    private Queue<Card> mCardQueue;
+    private Queue<String> mCardIdQueue;
+    private Queue<Integer> mCardCountQueue;
     private Thread mCurrentThread;
     private Runnable mPowerReaderRunnable;
     private Runnable mLoadingScreenReaderRunnable;
     private WeakReference<CardListAdapter> mCardListAdapterWeakRef;
-    //private WeakReference<ScrollView> mScrollWeakRef;
 
     private static LogParser sLogParser;
 
@@ -51,10 +48,14 @@ public class LogParserTask implements
     public void setLogReaderLine(String line) { mStringQueue.add(line); }
 
     @Override
-    public void setLogReaderCard(Card card) { mCardQueue.add(card); }
+    public void setLogReaderCard(String cardId) { mCardIdQueue.add(cardId); }
+
+    @Override
+    public void setLogReaderCardCount(int count) { mCardCountQueue.add(count); }
 
     public String getLine() { return mStringQueue.poll(); }
-    public Card getCard() { return mCardQueue.poll(); }
+    public Card getCard() { return CardAPI.getCardById(mCardIdQueue.poll()); }
+    public int getCardCount() { return mCardCountQueue.poll(); }
 
     public void init(
             LogParser logParser,
@@ -62,9 +63,9 @@ public class LogParserTask implements
 
         sLogParser = logParser;
         mStringQueue = new LinkedList<>();
-        mCardQueue = new LinkedList<>();
+        mCardIdQueue = new LinkedList<>();
+        mCardCountQueue = new LinkedList<>();
         mCardListAdapterWeakRef = new WeakReference<>(cardListAdapter);
-        //mScrollWeakRef = new WeakReference<>(scrollView);
     }
 
     public Thread getCurrentThread() {
@@ -84,20 +85,6 @@ public class LogParserTask implements
         }
         return null;
     }
-
-    /*public TextView getTextView() {
-        if (mTextWeakRef != null) {
-            return mTextWeakRef.get();
-        }
-        return null;
-    }
-
-    public ScrollView getScrollView() {
-        if (mScrollWeakRef != null) {
-            return mScrollWeakRef.get();
-        }
-        return null;
-    }*/
 
     Runnable getPowerRunnable() {
         return mPowerReaderRunnable;
