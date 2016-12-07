@@ -317,6 +317,16 @@ public class LogReaderPower implements Runnable {
                     if (m.matches()) {
 
                     }
+                } else if(line.startsWith("BLOCK_START BlockType=TRIGGER")){
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player.*Target=.*");
+                    Matcher m = p.matcher(line);
+                    if (m.matches()) {
+                        String s = m.group(1);
+                        if(s.equals("Ancient Curse")) {
+                            mLogParserTask.setLogReaderCard(m.group(2));
+                            mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                        }
+                    }
                 } else if(line.startsWith("TAG_CHANGE")){
                     Pattern p = Pattern.compile("TAG_CHANGE Entity=(.*) tag=PLAYSTATE value=(.*)");
                     Matcher m = p.matcher(line);

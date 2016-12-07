@@ -153,7 +153,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         while(!sActiveDeck.isComplete()){
             sActiveDeck.addCard(Card.unknown());
         }
-        mCards = sActiveDeck.getCards();
+        SortedList<Card> temp = sActiveDeck.getCards();
+        for(int i=0;i<temp.size();i++){
+            mCards.add(temp.get(i));
+        }
         mCardCount.putAll(sActiveDeck.getCardCount());
     }
 
@@ -214,7 +217,11 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         while(!sActiveDeck.isComplete()){
             sActiveDeck.addCard(Card.unknown());
         }
-        mCards = sActiveDeck.getCards();
+        mCards.clear();
+        SortedList<Card> temp = sActiveDeck.getCards();
+        for(int i=0;i<temp.size();i++){
+            mCards.add(temp.get(i));
+        }
         mCardCount.putAll(sActiveDeck.getCardCount());
         notifyDataSetChanged();
     }
