@@ -40,6 +40,7 @@ public class LogReaderPower implements Runnable {
     private int mLineNumber = 0;
     private int mState = WAITING_FOR_LOG;
     private int mPrevState = STATE_IDLE;
+    private boolean mDoomcallerPlayed = false;
 
     private ArrayList<String> mPlayerNames = new ArrayList<>();
     private class Player {
@@ -255,7 +256,9 @@ public class LogReaderPower implements Runnable {
                 if (line.equals("TAG_CHANGE Entity=GameEntity tag=STEP value=MAIN_START")) {
                     mState = STATE_OPPONENT_TURN;
                     mTurn++;
-                } else if(line.startsWith("SHOW_ENTITY")){
+                } else if(line.startsWith("BLOCK_END") && mDoomcallerPlayed) {
+                    mDoomcallerPlayed = false;
+                } else if(line.startsWith("SHOW_ENTITY")) {
                     Pattern p = Pattern.compile(".*Updating Entity=.*zone=DECK.*CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
@@ -265,29 +268,59 @@ public class LogReaderPower implements Runnable {
                         mLogParserTask.setLogReaderCard(m.group(1));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
+                } else if(line.startsWith("FULL_ENTITY") && mDoomcallerPlayed){
+                    addKnownCardToDeck("OG_280", 1);
                 } else if(line.startsWith("BLOCK_START BlockType=POWER")){
-                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player.*Target=(.*)");
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*EffectIndex=(.*) Target=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         String s = m.group(1);
                         if(s.equals("Forgotten Torch")) {
-                            addKnownCardToDeck("LOE_002t", 1);}
+                            addKnownCardToDeck("LOE_002t", 1);
+                        }
                         if(s.equals("Ancient Shade")) {
-                            addKnownCardToDeck("LOE_110t", 1);}
+                            addKnownCardToDeck("LOE_110t", 1);
+                        }
                         if(s.equals("Elise Starseeker")) {
-                            addKnownCardToDeck("LOE_019t", 1);}
+                            addKnownCardToDeck("LOE_019t", 1);
+                        }
                         if(s.equals("Map to the Golden Monkey")) {
-                            addKnownCardToDeck("LOE_019t2", 1);}
-
+                            addKnownCardToDeck("LOE_019t2", 1);
+                        }
+                        if(s.equals("Entomb") || s.equals("Manic Soulcaster")){
+                            addTargetCardToDeck(m.group(3), 1);
+                        }
+                        if(s.equals("Gang Up")){
+                            addTargetCardToDeck(m.group(3), 3);
+                        }
+                        if(s.equals("Jade Idol") && m.group(2).equals("1")){
+                            addKnownCardToDeck("CFM_602", 3);
+                        }
+                        if(s.equals("Doomcaller")){
+                            mDoomcallerPlayed = true;
+                        }
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=TRIGGER")){
-                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player.*Target=.*");
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player=(.).*Target=.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         String s = m.group(1);
                         if(s.equals("Ancient Curse")) {
                             mLogParserTask.setLogReaderCard(m.group(2));
                             mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                        }
+                        if(s.equals("Burrowing Mine")) {
+                            mLogParserTask.setLogReaderCard(m.group(2));
+                            mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                        }
+                        if(s.equals("Malorne") && m.group(3).equals("1")){
+                            addKnownCardToDeck("GVG_035", 1);
+                        }
+                        if(s.equals("Weasel Tunneler") && m.group(3).equals("2")){
+                            addKnownCardToDeck("CFM_095", 1);
+                        }
+                        if(s.equals("White Eyes") && m.group(3).equals("1")){
+                            addKnownCardToDeck("CFM_324t", 1);
                         }
                     }
                 } else if(line.startsWith("TAG_CHANGE")){
@@ -312,19 +345,40 @@ public class LogReaderPower implements Runnable {
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=POWER")){
-                    Pattern p = Pattern.compile(".*name=(.*) id=.*Target.*");
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*EffectIndex=(.*) Target=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-
+                        String s = m.group(1);
+                        if(s.equals("Excavated Evil")) {
+                            addKnownCardToDeck("LOE_111", 1);
+                        }
+                        if(s.equals("Beneath the Grounds")) {
+                            addKnownCardToDeck("AT_035t", 3);
+                        }
+                        if(s.equals("Iron Juggernaut")) {
+                            addKnownCardToDeck("GVG_056t", 1);
+                        }
+                        if(s.equals("Recycle")){
+                            addTargetCardToDeck(m.group(3), 1);
+                        }
                     }
                 } else if(line.startsWith("BLOCK_START BlockType=TRIGGER")){
-                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player.*Target=.*");
+                    Pattern p = Pattern.compile(".*name=(.*) id=.*cardId=(.*) player=(.).*Target=.*");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         String s = m.group(1);
                         if(s.equals("Ancient Curse")) {
                             mLogParserTask.setLogReaderCard(m.group(2));
                             mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                        }
+                        if(s.equals("Malorne") && m.group(3).equals("1")){
+                            addKnownCardToDeck("GVG_035", 1);
+                        }
+                        if(s.equals("Weasel Tunneler") && m.group(3).equals("2")){
+                            addKnownCardToDeck("CFM_095", 1);
+                        }
+                        if(s.equals("White Eyes") && m.group(3).equals("1")){
+                            addKnownCardToDeck("CFM_324t", 1);
                         }
                     }
                 } else if(line.startsWith("TAG_CHANGE")){
@@ -343,5 +397,15 @@ public class LogReaderPower implements Runnable {
         mLogParserTask.setLogReaderCard(cardId);
         mLogParserTask.setLogReaderCardCount(count);
         mLogParserTask.handlePowerState(ADD_CARD_TO_DECK, POWER_TASK);
+    }
+
+    private void addTargetCardToDeck(String target, int count){
+        Pattern p = Pattern.compile(".*cardId=(.*) player.*");
+        Matcher m = p.matcher(target);
+        if(m.matches()){
+            mLogParserTask.setLogReaderCard(m.group(1));
+            mLogParserTask.setLogReaderCardCount(count);
+            mLogParserTask.handlePowerState(ADD_CARD_TO_DECK, POWER_TASK);
+        }
     }
 }
