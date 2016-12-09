@@ -1,26 +1,22 @@
 package dumplingyzr.hearthtracker;
 
 import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.util.SortedList;
 import android.util.Xml;
 
-/*import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.converters.collections.MapConverter;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;*/
-
-//import org.apache.commons.io.FileUtils;
-
 import org.apache.commons.io.FileUtils;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 
@@ -28,7 +24,7 @@ import java.util.HashMap;
  * Created by dumplingyzr on 2016/11/23.
  */
 
-public class Deck {
+public class Deck implements Parcelable{
     private static final int STANDARD_DECK = 0;
     private static final int WILD_DECK = 1;
 
@@ -167,6 +163,56 @@ public class Deck {
         }
     }
 
+    public void createFromXml(String deckName){
+
+        try {
+            String path = Environment.getExternalStorageDirectory().getPath()
+                    + "/Android/data/dumplingyzr.hearthtracker/files/" + deckName + ".deck.xml";
+            File file = new File(path);
+            InputStream inputStream = new FileInputStream(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder deck = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                deck.append(line);
+            }
+
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser xpp = factory.newPullParser();
+            xpp.setInput(new StringReader(deck.toString()));
+            int eventType = xpp.getEventType();
+
+            String cardId = "unknown";
+            String tagName = "";
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_DOCUMENT) {
+
+                } else if (eventType == XmlPullParser.START_TAG) {
+                    tagName = xpp.getName();
+                } else if (eventType == XmlPullParser.END_TAG) {
+
+                } else if (eventType == XmlPullParser.TEXT) {
+                    if (tagName.equals("Id")){
+                        cardId = xpp.getText();
+                    } else if (tagName.equals("Count")){
+                        for(int i=0;i<Integer.parseInt(xpp.getText());i++){
+                            addCard(CardAPI.getCardById(cardId));
+                        }
+                    } else if (tagName.equals("Name")){
+                        name = xpp.getText();
+                    } else if (tagName.equals("Class")){
+                        classIndex = Card.playerClassToClassIndex(xpp.getText());
+                    }
+                }
+                eventType = xpp.next();
+            }
+        } catch (Exception e){
+
+        }
+    }
+
     public boolean isComplete() {
         return numOfCards == DECK_SIZE;
     }
@@ -174,4 +220,47 @@ public class Deck {
     public SortedList<Card> getCards(){ return mCards; }
 
     public HashMap<String, Integer> getCardCount(){ return mCardCount; }
+
+    public int describeContents() {
+        return 0;
+    }
+
+    public void writeToParcel(Parcel out, int flags) {
+        int arraySize = mCards.size();
+        String[] cardId = new String[arraySize];
+        int[] cardCount = new int[arraySize];
+        for(int i=0;i<arraySize;i++){
+            String id = mCards.get(i).id;
+            cardId[i] = id;
+            cardCount[i] = mCardCount.get(id);
+        }
+        out.writeString(name);
+        out.writeInt(classIndex);
+        out.writeInt(arraySize);
+        out.writeStringArray(cardId);
+        out.writeIntArray(cardCount);
+    }
+
+    public static final Parcelable.Creator<Deck> CREATOR
+            = new Parcelable.Creator<Deck>() {
+        public Deck createFromParcel(Parcel in) {
+            Deck deck = new Deck();
+            deck.name = in.readString();
+            deck.classIndex = in.readInt();
+            int arraySize = in.readInt();
+            String[] cardId = new String[arraySize];
+            int[] cardCount = new int[arraySize];
+            in.readStringArray(cardId);
+            in.readIntArray(cardCount);
+            for(int i=0;i<arraySize;i++){
+                for(int j=0;j<cardCount[i];j++){
+                    deck.addCard(CardAPI.getCardById(cardId[i]));
+                }
+            }
+            return deck;
+        }
+        public Deck[] newArray(int size) {
+            return new Deck[size];
+        }
+    };
 }

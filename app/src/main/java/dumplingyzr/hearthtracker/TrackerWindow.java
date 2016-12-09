@@ -3,11 +3,13 @@ package dumplingyzr.hearthtracker;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -23,7 +25,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class TrackerWindow extends Service {
-    private Context mContext;
+    private Context mContext = HearthTrackerApplication.getContext();
     private WindowManager mWindowManager;
     private ArrayList<View> mViews = new ArrayList<>();
     private int mWindowWidth = dp2Pixel(150);
@@ -37,7 +39,8 @@ public class TrackerWindow extends Service {
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
 
-
+    private SharedPreferences mSharedPref = mContext.getSharedPreferences("HearthTrackerSharedPreferences", Context.MODE_PRIVATE);
+    private SharedPreferences.Editor mEditor = mSharedPref.edit();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -101,6 +104,12 @@ public class TrackerWindow extends Service {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        String activeDeckName = mSharedPref.getString("ActiveDeckName", "");
+        if(!activeDeckName.equals("")){
+            Deck activeDeck = new Deck();
+            activeDeck.createFromXml(activeDeckName);
+            CardListAdapter.setActiveDeck(activeDeck);
+        }
         mAdapter = new CardListAdapter();
         mRecyclerView.setAdapter(mAdapter);
         //mRecyclerView.setItemAnimator(RecyclerView.ItemAnimator);
@@ -117,6 +126,9 @@ public class TrackerWindow extends Service {
                 //mWindowManager.removeView(logView);
                 mWindowManager.removeView(buttonView);
                 mWindowManager.removeView(recyclerView);
+                CardListAdapter.getDeck().saveCards();
+                mEditor.putString("ActiveDeckName", CardListAdapter.getDeck().name);
+                mEditor.commit();
                 stopSelf();
                 System.exit(0);
             }

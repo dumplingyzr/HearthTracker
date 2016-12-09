@@ -230,4 +230,6 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         sActiveDeck = deck;
     }
 
+    public static Deck getDeck(){ return sActiveDeck; }
+
 }
