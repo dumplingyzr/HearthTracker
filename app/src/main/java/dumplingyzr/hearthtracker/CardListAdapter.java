@@ -2,14 +2,17 @@ package dumplingyzr.hearthtracker;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -33,9 +36,17 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public View mView;
-        public ViewHolder(View v) {
-            super(v);
-            mView = v;
+        public ImageView mImageView;
+        public TextView mTextViewName;
+        public TextView mTextViewCost;
+        public TextView mTextViewCount;
+        public ViewHolder(View view) {
+            super(view);
+            mView = view;
+            mImageView = (ImageView) view.findViewById(R.id.card_image);
+            mTextViewName = (TextView) view.findViewById(R.id.card);
+            mTextViewCost = (TextView) view.findViewById(R.id.cost);
+            mTextViewCount = (TextView) view.findViewById(R.id.count);
         }
     }
 
@@ -48,9 +59,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, int position) {
         View view = viewHolder.mView;
-        TextView textViewName = (TextView) view.findViewById(R.id.card);
-        TextView textViewCost = (TextView) view.findViewById(R.id.cost);
-        TextView textViewCount = (TextView) view.findViewById(R.id.count);
+        ImageView imageView = viewHolder.mImageView;
+        TextView textViewName = viewHolder.mTextViewName;
+        TextView textViewCost = viewHolder.mTextViewCost;
+        TextView textViewCount = viewHolder.mTextViewCount;
         textViewCost.setVisibility(View.VISIBLE);
         textViewCount.setVisibility(View.VISIBLE);
 
@@ -67,8 +79,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         try {
             int drawableId;
             drawableId = context.getResources().getIdentifier(card.id.toLowerCase(), "drawable", context.getPackageName());
-            view.setBackground(context.getDrawable(drawableId));
-            view.getBackground().setAlpha(191);
+            imageView.setBackground(context.getDrawable(drawableId));
+            imageView.getBackground().setAlpha(255);
 
             textViewName.setText(card.name);
 
@@ -96,7 +108,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
             }
             else {
                 textViewCount.setVisibility(View.GONE);
-                view.getBackground().setAlpha(63);
+                imageView.getBackground().setAlpha(95);
             }
 
 

@@ -8,7 +8,7 @@
     android:id="@+id/rel">
     <ScrollView
         android:id="@+id/scrollView"
-        android:background="#3f000000"
+        android:background="#ff000000"
         android:layout_gravity="fill"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

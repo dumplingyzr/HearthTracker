@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -28,9 +29,17 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public View mView;
-        public ViewHolder(View v) {
-            super(v);
-            mView = v;
+        public ImageView mImageView;
+        public TextView mTextViewName;
+        public TextView mTextViewCost;
+        public TextView mTextViewCount;
+        public ViewHolder(View view) {
+            super(view);
+            mView = view;
+            mImageView = (ImageView) view.findViewById(R.id.card_image);
+            mTextViewName = (TextView) view.findViewById(R.id.card);
+            mTextViewCost = (TextView) view.findViewById(R.id.cost);
+            mTextViewCount = (TextView) view.findViewById(R.id.count);
         }
     }
 
@@ -43,6 +52,10 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
         View view = viewHolder.mView;
+        ImageView imageView = viewHolder.mImageView;
+        TextView textViewName = viewHolder.mTextViewName;
+        TextView textViewCost = viewHolder.mTextViewCost;
+        TextView textViewCount = viewHolder.mTextViewCount;
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,9 +85,6 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
             }
         });
 
-        TextView textViewName = (TextView) view.findViewById(R.id.card);
-        TextView textViewCost = (TextView) view.findViewById(R.id.cost);
-        TextView textViewCount = (TextView) view.findViewById(R.id.count);
         Card card = mCards.get(position);
         Context context = HearthTrackerApplication.getContext();
 
@@ -101,8 +111,8 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
             textViewName.setText(card.name);
             int drawableId;
             drawableId = context.getResources().getIdentifier(card.id.toLowerCase(), "drawable", context.getPackageName());
-            view.setBackground(context.getDrawable(drawableId));
-            view.getBackground().setAlpha(191);
+            imageView.setBackground(context.getDrawable(drawableId));
+            //view.getBackground().setAlpha(191);
         } catch (Resources.NotFoundException e) {
             System.out.println(card.name);
         }

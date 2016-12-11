@@ -1,36 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_marginTop="1dp"
     android:layout_marginBottom="1dp"
     android:layout_width="match_parent"
     android:layout_height="24dp">
+
     <TextView
         android:id="@+id/cost"
         android:background="@color/common"
         android:textSize="14sp"
         android:textColor="#ffffff"
+        android:textStyle="bold"
         android:gravity="center"
         android:layout_width="24dp"
-        android:layout_height="match_parent" />
-    <TextView
-        android:id="@+id/card"
-        android:textSize="14sp"
-        android:textColor="#ffffff"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:layout_marginEnd="24dp"
+        android:layout_height="match_parent"
+        tools:text="2"/>
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/card_image"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="card_image"
+                tools:background="@drawable/hexfrog" />
+            <ImageView
+                android:id="@+id/gradient_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="60dp"
+                android:contentDescription="card_image"
+                android:background="@drawable/gradient"
+                tools:background="@drawable/gradient" />
+            <TextView
+                android:id="@+id/card"
+                android:textSize="14sp"
+                android:textColor="#ffffff"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:layout_marginEnd="24dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:text="Hex Ahhhhhhhhhhhhhhhhhhhhhhhhhhhhh"/>
+
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/count"
-        android:background="#0000ff"
+        android:background="#3f000000"
         android:textSize="14sp"
+        android:textStyle="bold"
         android:textColor="#ffffff"
         android:gravity="center"
         android:layout_width="24dp"
         android:layout_marginStart="-24dp"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        tools:text="2"/>
 
 </LinearLayout>
