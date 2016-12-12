@@ -36,14 +36,16 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public View mView;
-        public ImageView mImageView;
+        public ImageView mCardImageView;
+        public ImageView mGradientView;
         public TextView mTextViewName;
         public TextView mTextViewCost;
         public TextView mTextViewCount;
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mImageView = (ImageView) view.findViewById(R.id.card_image);
+            mCardImageView = (ImageView) view.findViewById(R.id.card_image);
+            mGradientView = (ImageView) view.findViewById(R.id.gradient_image);
             mTextViewName = (TextView) view.findViewById(R.id.card);
             mTextViewCost = (TextView) view.findViewById(R.id.cost);
             mTextViewCount = (TextView) view.findViewById(R.id.count);
@@ -59,22 +61,29 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, int position) {
         View view = viewHolder.mView;
-        ImageView imageView = viewHolder.mImageView;
+        ImageView imageView = viewHolder.mCardImageView;
+        ImageView gradientView = viewHolder.mGradientView;
         TextView textViewName = viewHolder.mTextViewName;
         TextView textViewCost = viewHolder.mTextViewCost;
         TextView textViewCount = viewHolder.mTextViewCount;
-        textViewCost.setVisibility(View.VISIBLE);
-        textViewCount.setVisibility(View.VISIBLE);
 
         Card card = mCards.get(position);
         Context context = HearthTrackerApplication.getContext();
 
         if(card.id.equals("unknown")){
             textViewName.setText(mCardCount.get(card.id).toString() + " unknown");
+            textViewName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             textViewCost.setVisibility(View.INVISIBLE);
             textViewCount.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.INVISIBLE);
+            gradientView.setVisibility(View.INVISIBLE);
             return;
         }
+        textViewName.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+        textViewCost.setVisibility(View.VISIBLE);
+        textViewCount.setVisibility(View.VISIBLE);
+        imageView.setVisibility(View.VISIBLE);
+        gradientView.setVisibility(View.VISIBLE);
 
         try {
             int drawableId;
@@ -225,7 +234,13 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         notifyDataSetChanged();
     }
 
-    public void resetAll(){
+    public void startNewDeck(int classIndex){
+        sActiveDeck = new Deck();
+        sActiveDeck.classIndex = classIndex;
+        sActiveDeck.name = "AUTO_DETECT";
+    }
+
+    public void startNewGame(){
         while(!sActiveDeck.isComplete()){
             sActiveDeck.addCard(Card.unknown());
         }

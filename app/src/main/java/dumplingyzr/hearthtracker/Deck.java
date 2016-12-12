@@ -35,7 +35,7 @@ public class Deck implements Parcelable{
 
     public int numOfCards = 0;
     public String name = "custom";
-    public int classIndex;
+    public int classIndex = -1;
     public int type = 0;
 
     public Deck(){

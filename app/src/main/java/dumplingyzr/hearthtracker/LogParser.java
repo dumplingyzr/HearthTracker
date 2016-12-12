@@ -1,8 +1,11 @@
 package dumplingyzr.hearthtracker;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,6 +23,7 @@ public class LogParser {
     private static final int DISPLAY_CARD = 3;
     private static final int REMOVE_CARD = 4;
     private static final int ADD_CARD_TO_DECK = 5;
+    private static final int SET_PLAYER_HERO = 6;
 
     private static final int LOADING_SCREEN_TASK = 2;
     private static final int STATE_GAME_START = 1;
@@ -30,6 +34,7 @@ public class LogParser {
     private static final int UI_DISPLAY_CARD = 3;
     private static final int UI_REMOVE_CARD = 4;
     private static final int UI_ADD_CARD_TO_DECK = 5;
+    private static final int UI_SET_PLAYER_HERO = 6;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT;
@@ -84,7 +89,7 @@ public class LogParser {
                 if(inputMessage.what == UI_CLEAR_WINDOW) {
                     //mTextView.setText("");
                     //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-                    mCardListAdapter.resetAll();
+                    mCardListAdapter.startNewGame();
                 }
                 if(inputMessage.what == UI_DISPLAY_CARD) {
                     mCardListAdapter.onCardDraw(logParserTask.getCard());
@@ -95,19 +100,34 @@ public class LogParser {
                 if(inputMessage.what == UI_ADD_CARD_TO_DECK) {
                     mCardListAdapter.addCardToDeck(logParserTask.getCard(), logParserTask.getCardCount());
                 }
+                if(inputMessage.what == UI_SET_PLAYER_HERO) {
+                    String heroId = logParserTask.getPlayerHeroId();
+                    int classIndex = Card.heroIdToClassIndex(heroId);
+                    if (classIndex != CardListAdapter.getDeck().classIndex){
+                        mCardListAdapter.startNewDeck(classIndex);
+                        mCardListAdapter.startNewGame();
+                    }
+                    int drawableId;
+                    Context context = HearthTrackerApplication.getContext();
+                    drawableId = context.getResources().getIdentifier(heroId.toLowerCase(), "drawable", context.getPackageName());
+                    logParserTask.getHeroImageView().setBackground(context.getDrawable(drawableId));
+                    //TODO
+                }
             }
         };
     }
 
     public static LogParserTask init(
-            CardListAdapter cardListAdapter) {
+            CardListAdapter cardListAdapter,
+            ImageView imageView,
+            TextView textView) {
 
         logParserTask = sInstance.mLogParserTaskQueue.poll();
         if (null == logParserTask) {
             logParserTask = new LogParserTask();
         }
 
-        logParserTask.init(LogParser.sInstance, cardListAdapter);
+        logParserTask.init(LogParser.sInstance, cardListAdapter, imageView, textView);
 
         sInstance.mPowerThreadPool.execute(logParserTask.getPowerRunnable());
         sInstance.mLoadingScreenThreadPool.execute(logParserTask.getLoadingScreenRunnable());
@@ -122,6 +142,7 @@ public class LogParser {
         if(state == REMOVE_CARD && task == POWER_TASK) managerState = UI_REMOVE_CARD;
         if(state == CLEAR_WINDOW && task == POWER_TASK) managerState = UI_CLEAR_WINDOW;
         if(state == ADD_CARD_TO_DECK && task == POWER_TASK) managerState = UI_ADD_CARD_TO_DECK;
+        if(state == SET_PLAYER_HERO && task == POWER_TASK) managerState = UI_SET_PLAYER_HERO;
         Message completeMessage = mHandler.obtainMessage(managerState, logParserTask);
         completeMessage.sendToTarget();
     }

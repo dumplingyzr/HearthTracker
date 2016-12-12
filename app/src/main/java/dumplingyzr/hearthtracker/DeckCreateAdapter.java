@@ -118,6 +118,9 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
                     case "LEGENDARY":
                         textViewCost.setBackgroundColor(context.getResources().getColor(R.color.legendary));
                         break;
+                    default:
+                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.common));
+                        break;
                 }
             }
 

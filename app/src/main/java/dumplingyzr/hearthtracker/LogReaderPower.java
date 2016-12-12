@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,7 @@ public class LogReaderPower implements Runnable {
     private static final int DISPLAY_CARD = 3;
     private static final int REMOVE_CARD = 4;
     private static final int ADD_CARD_TO_DECK = 5;
+    private static final int SET_PLAYER_HERO = 6;
 
     private static final int WAITING_FOR_LOG = -1;
     private static final int STATE_IDLE = 0;
@@ -43,6 +45,7 @@ public class LogReaderPower implements Runnable {
     private boolean mDoomcallerPlayed = false;
 
     private ArrayList<String> mPlayerNames = new ArrayList<>();
+    private ArrayList<String> mPlayerHeroes = new ArrayList<>();
     private class Player {
         String name;
         boolean isFirstPlayer = false;
@@ -54,6 +57,8 @@ public class LogReaderPower implements Runnable {
     private Player mOpponent;
 
     private boolean mCanceled;
+    private int mPlayerIndex = 0;
+    private HashMap<String, Integer> mNumCardsDrawn;
     private ByteBuffer mByteBuffer = ByteBuffer.allocate(1000);
     private String mLine = "";
 
@@ -64,6 +69,7 @@ public class LogReaderPower implements Runnable {
         void setLogReaderLine(String line);
         void setLogReaderCard(String cardId);
         void setLogReaderCardCount(int count);
+        void setLogReaderPlayerClass(String heroId);
         void handlePowerState(int state, int task);
     }
 
@@ -165,6 +171,7 @@ public class LogReaderPower implements Runnable {
             mState = STATE_CREATE_GAME;
             mTurn = 1;
             mPlayerNames.clear();
+            mPlayerHeroes.clear();
             mLogParserTask.handlePowerState(CLEAR_WINDOW, POWER_TASK);
             mLogParserTask.setLogReaderLine("Game Started!\n");
             mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
@@ -174,46 +181,49 @@ public class LogReaderPower implements Runnable {
         switch (mState) {
             case STATE_CREATE_GAME:
                 if (line.startsWith("BLOCK_START BlockType=TRIGGER Entity=GameEntity")) {
-                    /**
-                     * Handle corrupted log file
-                     */
                     if(mPlayerNames.size()<2){
                         mState = STATE_IDLE;
                         break;
                     }
-                    mPlayer = new Player(mPlayerNames.get(0));
-                    mOpponent = new Player(mPlayerNames.get(1));
+                    //mPlayer = new Player(mPlayerNames.get(0));
+                    //mOpponent = new Player(mPlayerNames.get(1));
                     mState = STATE_INITIAL_HAND;
-                    mLogParserTask.setLogReaderLine("Initial hand:\n");
-                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
+                    //mLogParserTask.setLogReaderPlayerClass(mPlayerHeroes.get(0));
+                    //mLogParserTask.handlePowerState(SET_PLAYER_HERO, POWER_TASK);
                 } else if (line.startsWith("TAG_CHANGE")) {
                     Pattern p = Pattern.compile(".*Entity=(.*) tag=PLAYSTATE value=PLAYING");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         mPlayerNames.add(m.group(1));
                     }
+                } else if (line.startsWith("FULL_ENTITY")) {
+                    Pattern p = Pattern.compile(".*CardID=(HERO_.*)");
+                    Matcher m = p.matcher(line);
+                    if (m.matches()) {
+                        mPlayerHeroes.add(m.group(1));
+                    }
                 }
                 break;
             case STATE_INITIAL_HAND:
                 if (line.startsWith("BLOCK_START BlockType=TRIGGER Entity=GameEntity")) {
                     mState = STATE_SWITCH_CARD;
-                    mLogParserTask.setLogReaderLine("Player switch card:\n");
-                    mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
+                    mPlayer = new Player(mPlayerNames.get(mPlayerIndex));
+                    mOpponent = new Player(mPlayerNames.get(1-mPlayerIndex));
+                    mLogParserTask.setLogReaderPlayerClass(mPlayerHeroes.get(mPlayerIndex));
+                    mLogParserTask.handlePowerState(SET_PLAYER_HERO, POWER_TASK);
                 } else if(line.startsWith("SHOW_ENTITY")){
-                    Pattern p = Pattern.compile(".*Updating Entity=.* CardID=(.*)");
+                    Pattern p = Pattern.compile(".*Updating Entity=.*player=(.).*CardID=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        mLogParserTask.setLogReaderCard(m.group(1));
+                        mPlayerIndex = Integer.parseInt(m.group(1)) - 1;
+                        mLogParserTask.setLogReaderCard(m.group(2));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
                     }
                 } else if (line.startsWith("TAG_CHANGE")) {
-                    Pattern p = Pattern.compile(".*Entity=(.*) tag=FIRST_PLAYER value=1");
+                    Pattern p = Pattern.compile(".*Entity=(.*) tag=NUM_CARDS_DRAWN_THIS_TURN value=(.*)");
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
-                        if(mPlayer.name.equals(m.group(1)))
-                            mPlayer.isFirstPlayer = true;
-                        else
-                            mOpponent.isFirstPlayer = true;
+                        //mNumCardsDrawn.put(m.group(1),Integer.parseInt(m.group(2)));
                     }
                 } else if(line.startsWith("TAG_CHANGE")){
                     Pattern p = Pattern.compile("TAG_CHANGE Entity=(.*) tag=PLAYSTATE value=(.*)");
@@ -226,7 +236,7 @@ public class LogReaderPower implements Runnable {
                 break;
             case STATE_SWITCH_CARD:
                 if (line.equals("TAG_CHANGE Entity=GameEntity tag=STEP value=MAIN_START")) {
-                    mState = mPlayer.isFirstPlayer ? STATE_PLAYER_TURN : STATE_OPPONENT_TURN;
+                    mState = mPlayerIndex == 0 ? STATE_PLAYER_TURN : STATE_OPPONENT_TURN;
                     mLogParserTask.setLogReaderLine("Turn " + mTurn.toString() + "\n");
                     mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
                 } else if(line.startsWith("SHOW_ENTITY")){

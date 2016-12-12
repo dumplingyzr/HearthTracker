@@ -1,5 +1,8 @@
 package dumplingyzr.hearthtracker;
 
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,10 +18,13 @@ public class LogParserTask implements
     private Queue<String> mStringQueue;
     private Queue<String> mCardIdQueue;
     private Queue<Integer> mCardCountQueue;
+    private String mPlayerHero;
     private Thread mCurrentThread;
     private Runnable mPowerReaderRunnable;
     private Runnable mLoadingScreenReaderRunnable;
     private WeakReference<CardListAdapter> mCardListAdapterWeakRef;
+    private WeakReference<ImageView> mHeroImageWeakRef;
+    private WeakReference<TextView> mDeckInfoWeakRef;
 
     private static LogParser sLogParser;
 
@@ -53,19 +59,28 @@ public class LogParserTask implements
     @Override
     public void setLogReaderCardCount(int count) { mCardCountQueue.add(count); }
 
+    @Override
+    public void setLogReaderPlayerClass(String heroId) { mPlayerHero = heroId; }
+
     public String getLine() { return mStringQueue.poll(); }
+    public String getPlayerHeroId() { return mPlayerHero; }
     public Card getCard() { return CardAPI.getCardById(mCardIdQueue.poll()); }
     public int getCardCount() { return mCardCountQueue.poll(); }
 
     public void init(
             LogParser logParser,
-            CardListAdapter cardListAdapter) {
+            CardListAdapter cardListAdapter,
+            ImageView imageView,
+            TextView textView) {
 
         sLogParser = logParser;
+        mPlayerHero = "";
         mStringQueue = new LinkedList<>();
         mCardIdQueue = new LinkedList<>();
         mCardCountQueue = new LinkedList<>();
         mCardListAdapterWeakRef = new WeakReference<>(cardListAdapter);
+        mHeroImageWeakRef = new WeakReference<>(imageView);
+        mDeckInfoWeakRef = new WeakReference<>(textView);
     }
 
     public Thread getCurrentThread() {
@@ -82,6 +97,13 @@ public class LogParserTask implements
     public CardListAdapter getCardListAdapter() {
         if (mCardListAdapterWeakRef != null) {
             return mCardListAdapterWeakRef.get();
+        }
+        return null;
+    }
+
+    public ImageView getHeroImageView() {
+        if (mHeroImageWeakRef != null) {
+            return mHeroImageWeakRef.get();
         }
         return null;
     }
