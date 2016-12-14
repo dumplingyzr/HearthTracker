@@ -78,12 +78,13 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
             imageView.setVisibility(View.INVISIBLE);
             gradientView.setVisibility(View.INVISIBLE);
             return;
+        } else {
+            textViewName.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            textViewCost.setVisibility(View.VISIBLE);
+            textViewCount.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+            gradientView.setVisibility(View.VISIBLE);
         }
-        textViewName.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-        textViewCost.setVisibility(View.VISIBLE);
-        textViewCount.setVisibility(View.VISIBLE);
-        imageView.setVisibility(View.VISIBLE);
-        gradientView.setVisibility(View.VISIBLE);
 
         try {
             int drawableId;
@@ -200,7 +201,14 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 sActiveDeck.addCard(card);
                 mCards.add(card);
                 mCardCount.put(card.id, 0);
-                if(mCardCount.get("unknown") == 0) { mCards.remove(card.unknown());}
+                if(mCardCount.get("unknown") == 0) {
+                    mCards.remove(card.unknown());
+                    sActiveDeck.name = "custum " + Card.classIndexToPlayerClass(sActiveDeck.classIndex).toLowerCase();
+                    Toast toast = Toast.makeText(HearthTrackerApplication.getContext(),
+                            "Deck completed and saved as: " + sActiveDeck.name,Toast.LENGTH_LONG);
+                    toast.show();
+                    sActiveDeck.saveCards();
+                }
                 notifyDataSetChanged();
             } else {
                 Toast toast = Toast.makeText(HearthTrackerApplication.getContext(),"Error Detected",Toast.LENGTH_SHORT);
@@ -244,7 +252,9 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         while(!sActiveDeck.isComplete()){
             sActiveDeck.addCard(Card.unknown());
         }
+        sAddedCards = new Deck();
         mCards.clear();
+        mCardCount.clear();
         SortedList<Card> temp = sActiveDeck.getCards();
         for(int i=0;i<temp.size();i++){
             mCards.add(temp.get(i));

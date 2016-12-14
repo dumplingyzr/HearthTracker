@@ -18,6 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -132,6 +135,8 @@ public class Deck implements Parcelable{
     }
 
     public void saveCards(){
+        if(this.isComplete()) return;
+
         String path = Environment.getExternalStorageDirectory().getPath()+"/Android/data/dumplingyzr.hearthtracker/files/";
         XmlSerializer serializer = Xml.newSerializer();
         StringWriter writer = new StringWriter();
@@ -157,7 +162,14 @@ public class Deck implements Parcelable{
                 serializer.endTag("", "Name");
             serializer.endTag("", "Deck");
             serializer.endDocument();
-            FileUtils.writeStringToFile(new File(path + this.name + ".deck.xml"), writer.toString());
+            if(this.name.equals("AUTO_DETECT")) {
+                FileUtils.writeStringToFile(new File(path + this.name + ".deck.xml"), writer.toString());
+            } else {
+                DateFormat df = new SimpleDateFormat("_yyyyMMddHHmmss");
+                Date date = new Date();
+                String currTime = df.format(date);
+                FileUtils.writeStringToFile(new File(path + this.name + currTime + ".deck.xml"), writer.toString());
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

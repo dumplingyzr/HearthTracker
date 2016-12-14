@@ -35,8 +35,8 @@ public class TrackerWindow extends Service {
     private CardListAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private static SharedPreferences sSharedPref = sContext.getSharedPreferences("HearthTrackerSharedPreferences", Context.MODE_PRIVATE);
-    private static SharedPreferences.Editor sEditor = sSharedPref.edit();
+    private static SharedPreferences sSharedPref;
+    private static SharedPreferences.Editor sEditor;
 
     private Intent mIntent;
 
@@ -49,6 +49,8 @@ public class TrackerWindow extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        sSharedPref = sContext.getSharedPreferences("HearthTrackerSharedPreferences", Context.MODE_PRIVATE);
+        sEditor = sSharedPref.edit();
         mWindowManager = (WindowManager)  getSystemService(WINDOW_SERVICE);
         Point screenSize = new Point();
         mWindowManager.getDefaultDisplay().getSize(screenSize);
@@ -97,6 +99,7 @@ public class TrackerWindow extends Service {
         String activeDeckName = sSharedPref.getString("ActiveDeckName", "");
         if(!activeDeckName.equals("")){
             Deck activeDeck = new Deck();
+            activeDeck.createFromXml(activeDeckName);
             if(activeDeck.classIndex >= 0 && activeDeck.classIndex < 9){
                 String heroId = Card.classIndexToHeroId(activeDeck.classIndex);
                 int drawableId;
@@ -104,7 +107,6 @@ public class TrackerWindow extends Service {
                 drawableId = context.getResources().getIdentifier(heroId.toLowerCase(), "drawable", context.getPackageName());
                 imageView.setBackground(context.getDrawable(drawableId));
             }
-            activeDeck.createFromXml(activeDeckName);
             CardListAdapter.setActiveDeck(activeDeck);
         }
         mAdapter = new CardListAdapter();
