@@ -137,7 +137,7 @@ public class TrackerWindow extends Service {
             }
         });
 
-        buttonMenu.setOnClickListener(new View.OnClickListener() {
+        /*buttonMenu.setOnClickListener(new View.OnClickListener() {
             //WindowManager.LayoutParams updatedParameters = mParams;
             @Override
             public void onClick(View v) {
@@ -145,7 +145,7 @@ public class TrackerWindow extends Service {
                 Toast toast = Toast.makeText(getApplicationContext(), "meow", Toast.LENGTH_SHORT);
                 toast.show();
             }
-        });
+        });*/
 
     }
 

@@ -147,6 +147,7 @@ public class CardAPI {
             ArrayList<Card> list = new Gson().fromJson(sCardsJson, new TypeToken<ArrayList<Card>>() {
             }.getType());
             Collections.sort(list, new Comparator<Card>(){
+                @Override
                 public int compare(Card c1, Card c2)
                 {
                     return c1.id.compareTo(c2.id);
