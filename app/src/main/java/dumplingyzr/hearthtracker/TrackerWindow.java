@@ -9,7 +9,6 @@ import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.IBinder;
-import android.provider.ContactsContract;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -20,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class TrackerWindow extends Service {
     private static Context sContext = HearthTrackerApplication.getContext();
@@ -96,6 +94,7 @@ public class TrackerWindow extends Service {
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
 
+        HearthTrackerApplication.username = sSharedPref.getString("UserName", "");
         String activeDeckName = sSharedPref.getString("ActiveDeckName", "");
         if(!activeDeckName.equals("")){
             Deck activeDeck = new Deck();
@@ -118,7 +117,7 @@ public class TrackerWindow extends Service {
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveActiveDeck();
+                saveUserMetrics();
                 System.exit(0);
             }
         });
@@ -149,9 +148,10 @@ public class TrackerWindow extends Service {
 
     }
 
-    public static void saveActiveDeck() {
+    public static void saveUserMetrics() {
         CardListAdapter.getDeck().saveCards();
         sEditor.putString("ActiveDeckName", CardListAdapter.getDeck().name);
+        sEditor.putString("UserName", HearthTrackerApplication.username);
         sEditor.commit();
     }
 

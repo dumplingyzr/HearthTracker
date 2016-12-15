@@ -19,7 +19,9 @@ import java.util.HashMap;
  */
 
 public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.ViewHolder>{
-    private static final String[] SETS = {
+    private static final int STANDARD_DECK = 0;
+    private static final int WILD_DECK = 1;
+    private static final String[] STANDARD_SETS = {
             "",
             "GANGS",
             "KARA",
@@ -29,6 +31,20 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
             "BRM",
             "EXPERT1",
             "CORE"
+    };
+    private static final String[] WILD_SETS = {
+            "",
+            "GANGS",
+            "KARA",
+            "OG",
+            "LOE",
+            "TGT",
+            "BRM",
+            "EXPERT1",
+            "CORE",
+            "NAXX",
+            "GVG",
+            "REWARD"
     };
 
     private SortedList<Card> mCards;
@@ -256,7 +272,7 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
     }
 
     public void filter(int cost, int set, int _class) {
-        mCards = CardAPI.getCardsByClass(mClassIndex);
+        mCards = CardAPI.getCardsByClass(mClassIndex, mDeck.type);
         if(cost == 0 && set == 0 && _class == 0) {
             notifyDataSetChanged();
             return;
@@ -275,11 +291,15 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
     }
 
     public void init() {
-        mCards = CardAPI.getCardsByClass(mClassIndex);
+        mCards = CardAPI.getCardsByClass(mClassIndex, mDeck.type);
         notifyDataSetChanged();
     }
 
     private String setIndex2String (int index) {
-        return SETS[index];
+        if(mDeck.type == STANDARD_DECK) {
+            return STANDARD_SETS[index];
+        } else {
+            return WILD_SETS[index];
+        }
     }
 }

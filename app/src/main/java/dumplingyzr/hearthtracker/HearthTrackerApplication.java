@@ -10,6 +10,8 @@ import android.speech.tts.TextToSpeech;
 
 public class HearthTrackerApplication extends Application {
 
+    public static String username = "";
+
     private static Context sContext;
 
     public static Context getContext() {

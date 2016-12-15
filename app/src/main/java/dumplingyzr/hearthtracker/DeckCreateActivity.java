@@ -1,14 +1,10 @@
 package dumplingyzr.hearthtracker;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,14 +13,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-
 /**
  * Created by dumplingyzr on 2016/11/27.
  */
 
 public class DeckCreateActivity extends AppCompatActivity {
+    private static final int STANDARD_DECK = 0;
+    private static final int WILD_DECK = 1;
+
     private RecyclerView mCurrDeckView;
     private RecyclerView mCardPoolView;
     private DeckEditAdapter mCurrDeckAdapter;
@@ -79,9 +75,15 @@ public class DeckCreateActivity extends AppCompatActivity {
         costFilterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCostFilterSpinner.setAdapter(costFilterAdapter);
 
+        ArrayAdapter<CharSequence> setFilterAdapter;
         mSetFilterSpinner = (Spinner) findViewById(R.id.filter_set);
-        ArrayAdapter<CharSequence> setFilterAdapter = ArrayAdapter.createFromResource(this,
-                R.array.card_set_filter, android.R.layout.simple_spinner_item);
+        if(mDeckType == STANDARD_DECK) {
+            setFilterAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.card_set_standard_filter, android.R.layout.simple_spinner_item);
+        } else {
+            setFilterAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.card_set_wild_filter, android.R.layout.simple_spinner_item);
+        }
         setFilterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSetFilterSpinner.setAdapter(setFilterAdapter);
 

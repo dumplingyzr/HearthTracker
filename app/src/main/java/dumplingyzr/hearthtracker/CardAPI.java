@@ -1,6 +1,8 @@
 package dumplingyzr.hearthtracker;
 
+import android.app.Activity;
 import android.os.AsyncTask;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
@@ -34,13 +36,18 @@ public class CardAPI {
     private static SortedList<Card> sStandardCards;
     private static HashMap<String, Card> sCardsByName = new HashMap<>();
     private static boolean sCardsReady;
+    private MainActivity mMainActivity;
+
+    private static final int STANDARD_DECK = 0;
+    private static final int WILD_DECK = 1;
 
     private static String[] sStandardSet = {
             "GANGS","KARA","OG","TGT","LOE","BRM","EXPERT1","CORE"
     };
     
-    public void init(){
-        sLocale = "zhCN";
+    public void init(MainActivity activity){
+        mMainActivity = activity;
+        sLocale = "enUS";
         sStandardCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
@@ -139,6 +146,12 @@ public class CardAPI {
         protected void onPostExecute(String result) {
             sCardsJson = result;
             storeCards();
+            mMainActivity.buttonStart.setEnabled(true);
+            if (mMainActivity.hasAllPermissions()) {
+                mMainActivity.buttonStart.setText("Start HearthTracker");
+            } else {
+                mMainActivity.buttonStart.setText("Authorize and start HearthTracker");
+            }
         }
     }
 
@@ -168,7 +181,7 @@ public class CardAPI {
         return sStandardCards;
     }
 
-    public static SortedList<Card> getCardsByClass(int classIndex){
+    public static SortedList<Card> getCardsByClass(int classIndex, int type){
         SortedList<Card> cardsByClass = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
@@ -207,11 +220,23 @@ public class CardAPI {
                 return c1.id.equals(c2.id);
             }
         });
-        for(int i = 0; i< sStandardCards.size(); i++){
-            Card c = sStandardCards.get(i);
-            int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
-            if (cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex){
-                cardsByClass.add(c);
+        if(type == STANDARD_DECK){
+            for(int i = 0; i< sStandardCards.size(); i++){
+                Card c = sStandardCards.get(i);
+                int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
+                if (cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex){
+                    cardsByClass.add(c);
+                }
+            }
+        } else if (type == WILD_DECK){
+            for(int i = 0; i< sCardsById.size(); i++){
+                Card c = sCardsById.get(i);
+                int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
+                if ((cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex) &&
+                        (c.type.equals("SPELL") || c.type.equals("MINION") || c.type.equals("WEAPON")) &&
+                        c.collectible){
+                    cardsByClass.add(c);
+                }
             }
         }
         return cardsByClass;

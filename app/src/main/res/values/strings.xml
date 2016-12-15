@@ -11,7 +11,7 @@
         <item>6</item>
         <item>7+</item>
     </string-array>
-    <string-array name="card_set_filter">
+    <string-array name="card_set_standard_filter">
         <item>All</item>
         <item>Gadgetzan</item>
         <item>Karazhan</item>
@@ -21,6 +21,20 @@
         <item>Blackrock Mountain</item>
         <item>Classic</item>
         <item>Basic</item>
+    </string-array>
+    <string-array name="card_set_wild_filter">
+        <item>All</item>
+        <item>Gadgetzan</item>
+        <item>Karazhan</item>
+        <item>Old Gods</item>
+        <item>League of Explorers</item>
+        <item>Grand Tournament</item>
+        <item>Blackrock Mountain</item>
+        <item>Classic</item>
+        <item>Basic</item>
+        <item>Goblins vs Gnomes</item>
+        <item>Naxxramas</item>
+        <item>Reward</item>
     </string-array>
     <string-array name="card_class_filter">
         <item>All</item>

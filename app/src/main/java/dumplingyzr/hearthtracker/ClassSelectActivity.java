@@ -64,6 +64,12 @@ public class ClassSelectActivity extends AppCompatActivity {
 
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.deck_type);
         mDeckType = radioGroup.getCheckedRadioButtonId() == R.id.standard ? STANDARD_DECK : WILD_DECK;
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                mDeckType = radioGroup.getCheckedRadioButtonId() == R.id.standard ? STANDARD_DECK : WILD_DECK;
+            }
+        });
     }
 
     private void LaunchDeckCreateActivity() {
