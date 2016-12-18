@@ -2,7 +2,6 @@ package dumplingyzr.hearthtracker;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -28,8 +26,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     private static final int FLASH = 4;
 
     private SortedList<Card> mCards;
-    private static Deck sActiveDeck = new Deck();
-    private static Deck sAddedCards = new Deck();
+    private Deck mActiveDeck = new Deck();
+    private Deck mAddedCards = new Deck();
     private HashMap<String, Integer> mCardCount = new HashMap<>();
     private int mAnimatePosition = -1;
 
@@ -68,7 +66,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         TextView textViewCount = viewHolder.mTextViewCount;
 
         Card card = mCards.get(position);
-        Context context = HearthTrackerApplication.getContext();
+        Context context = HearthTrackerUtils.getContext();
 
         if(card.id.equals("unknown")){
             textViewName.setText(mCardCount.get(card.id).toString() + " unknown");
@@ -172,18 +170,18 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 return c1.id.equals(c2.id);
             }
         });
-        while(!sActiveDeck.isComplete()){
-            sActiveDeck.addCard(Card.unknown());
+        while(!mActiveDeck.isComplete()){
+            mActiveDeck.addCard(Card.unknown());
         }
-        SortedList<Card> temp = sActiveDeck.getCards();
+        SortedList<Card> temp = mActiveDeck.getCards();
         for(int i=0;i<temp.size();i++){
             mCards.add(temp.get(i));
         }
-        mCardCount.putAll(sActiveDeck.getCardCount());
+        mCardCount.putAll(mActiveDeck.getCardCount());
     }
 
     public void onCardDraw(Card card){
-        if(sAddedCards.removeCard(card)) {
+        if(mAddedCards.removeCard(card)) {
             int count = mCardCount.get(card.id);
             mCardCount.put(card.id, count - 1);
             notifyDataSetChanged();
@@ -197,21 +195,21 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         } else {
             if (mCardCount.containsKey("unknown") && mCardCount.get("unknown") > 0){
                 mCardCount.put("unknown", mCardCount.get("unknown") - 1);
-                sActiveDeck.removeCard(card.unknown());
-                sActiveDeck.addCard(card);
+                mActiveDeck.removeCard(card.unknown());
+                mActiveDeck.addCard(card);
                 mCards.add(card);
                 mCardCount.put(card.id, 0);
                 if(mCardCount.get("unknown") == 0) {
                     mCards.remove(card.unknown());
-                    sActiveDeck.name = "custum " + Card.classIndexToPlayerClass(sActiveDeck.classIndex).toLowerCase();
-                    Toast toast = Toast.makeText(HearthTrackerApplication.getContext(),
-                            "Deck completed and saved as: " + sActiveDeck.name,Toast.LENGTH_LONG);
+                    mActiveDeck.name = "custum " + Card.classIndexToPlayerClass(mActiveDeck.classIndex).toLowerCase();
+                    Toast toast = Toast.makeText(HearthTrackerUtils.getContext(),
+                            "Deck completed and saved as: " + mActiveDeck.name,Toast.LENGTH_LONG);
                     toast.show();
-                    sActiveDeck.saveCards();
+                    mActiveDeck.saveCards();
                 }
                 notifyDataSetChanged();
             } else {
-                Toast toast = Toast.makeText(HearthTrackerApplication.getContext(),"Error Detected",Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(HearthTrackerUtils.getContext(),"Error Detected",Toast.LENGTH_SHORT);
                 toast.show();
             }
         }
@@ -243,30 +241,31 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     }
 
     public void startNewDeck(int classIndex){
-        sActiveDeck = new Deck();
-        sActiveDeck.classIndex = classIndex;
-        sActiveDeck.name = "AUTO_DETECT";
+        mActiveDeck = new Deck();
+        mActiveDeck.classIndex = classIndex;
+        mActiveDeck.name = "AUTO_DETECT";
     }
 
     public void startNewGame(){
-        while(!sActiveDeck.isComplete()){
-            sActiveDeck.addCard(Card.unknown());
+        while(!mActiveDeck.isComplete()){
+            mActiveDeck.addCard(Card.unknown());
         }
-        sAddedCards = new Deck();
+        mAddedCards = new Deck();
         mCards.clear();
         mCardCount.clear();
-        SortedList<Card> temp = sActiveDeck.getCards();
+        SortedList<Card> temp = mActiveDeck.getCards();
         for(int i=0;i<temp.size();i++){
             mCards.add(temp.get(i));
         }
-        mCardCount.putAll(sActiveDeck.getCardCount());
+        mCardCount.putAll(mActiveDeck.getCardCount());
         notifyDataSetChanged();
     }
 
-    public static void setActiveDeck(Deck deck){
-        sActiveDeck = deck;
+    public void setActiveDeck(Deck deck){
+        mActiveDeck = deck;
+        startNewGame();
     }
 
-    public static Deck getDeck(){ return sActiveDeck; }
+    public Deck getDeck(){ return mActiveDeck; }
 
 }

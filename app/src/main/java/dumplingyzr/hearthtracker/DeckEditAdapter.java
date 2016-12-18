@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
 
 
 /**
@@ -86,7 +85,7 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
         });
 
         Card card = mCards.get(position);
-        Context context = HearthTrackerApplication.getContext();
+        Context context = HearthTrackerUtils.getContext();
 
         try {
             if(card.cost == null) { textViewCost.setText("0"); }

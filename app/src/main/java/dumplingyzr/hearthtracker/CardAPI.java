@@ -146,12 +146,7 @@ public class CardAPI {
         protected void onPostExecute(String result) {
             sCardsJson = result;
             storeCards();
-            mMainActivity.buttonStart.setEnabled(true);
-            if (mMainActivity.hasAllPermissions()) {
-                mMainActivity.buttonStart.setText("Start HearthTracker");
-            } else {
-                mMainActivity.buttonStart.setText("Authorize and start HearthTracker");
-            }
+            mMainActivity.onCardsReady();
         }
     }
 

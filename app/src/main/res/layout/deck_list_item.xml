@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="35dp">
+    <ImageView
+        android:id="@+id/class_image"
+        android:layout_width="35dp"
+        android:layout_height="match_parent"
+        android:contentDescription="class_image"
+        tools:background="@drawable/icon_druid_64" />
+    <TextView
+        android:id="@+id/deck_name"
+        android:gravity="center_vertical"
+        android:ellipsize="end"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:text="Custom Druid"/>
+</LinearLayout>

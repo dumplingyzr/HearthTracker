@@ -138,8 +138,7 @@ public class DeckCreateActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (mDeck.isComplete()) {
                     mDeck.saveCards();
-                    CardListAdapter.setActiveDeck(mDeck);
-                    Toast toast = Toast.makeText(HearthTrackerApplication.getContext(), "Deck Saved and activated", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(HearthTrackerUtils.getContext(), "Deck saved and activated", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }

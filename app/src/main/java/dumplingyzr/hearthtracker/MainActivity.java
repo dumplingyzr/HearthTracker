@@ -2,9 +2,9 @@ package dumplingyzr.hearthtracker;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -21,7 +21,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 1;
@@ -30,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
             "/Android/data/com.blizzard.wtcg.hearthstone/files/";
     public static final String HEARTHSTONE_PACKAGE_ID = "com.blizzard.wtcg.hearthstone";
     private File mFile = new File(HEARTHSTONE_FILES_DIR + "log.config");
+    private Intent mServiceIntent = new Intent();
 
     public Button buttonStart;
 
@@ -37,19 +37,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        HearthTrackerApplication.setContext(this);
+        HearthTrackerUtils.setContext(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         buttonStart = (Button) findViewById(R.id.start);
-        buttonStart.setText("Loading Card Database");
-        buttonStart.setEnabled(false);
 
         Button buttonNewDeck = (Button) findViewById(R.id.new_deck);
 
-        new CardAPI().init(this);
-
-
+        if(savedInstanceState == null) {
+            buttonStart.setText("Loading Card Database");
+            buttonStart.setEnabled(false);
+            new CardAPI().init(this);
+        } else {
+            onCardsReady();
+        }
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
             buttonStart.setText("HearthTracker is running");
             buttonStart.setEnabled(false);
 
-            Intent serviceIntent = new Intent();
-            serviceIntent.setClass(MainActivity.this, TrackerWindow.class);
-            startService(serviceIntent);
+
+            mServiceIntent.setClass(MainActivity.this, TrackerWindow.class);
+            startService(mServiceIntent);
 
             Toast.makeText(this, "HearthTracker setup completed. Please kill and restart HearthStone.", Toast.LENGTH_LONG).show();
             return;
@@ -164,9 +166,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(newIntent);
     }
 
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        TrackerWindow.saveUserMetrics();
+    public void onCardsReady(){
+        buttonStart.setEnabled(true);
+        if (hasAllPermissions()) {
+            buttonStart.setText("Start HearthTracker");
+        } else {
+            buttonStart.setText("Authorize and start HearthTracker");
+        }
+        HearthTrackerUtils.loadUserDecks();
     }
 }

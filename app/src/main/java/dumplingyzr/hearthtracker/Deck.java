@@ -35,9 +35,10 @@ public class Deck implements Parcelable{
     private SortedList<Card> mCards;
     private int[] mManaCurve = new int[8];
     private static int DECK_SIZE = 30;
+    private boolean mIsSaved = false;
 
     public int numOfCards = 0;
-    public String name = "custom";
+    public String name = "AUTO_DETECT";
     public int classIndex = -1;
     public int type = 0;
 
@@ -135,8 +136,7 @@ public class Deck implements Parcelable{
     }
 
     public void saveCards(){
-        if(this.isComplete()) return;
-
+        if (mIsSaved) return;
         String path = Environment.getExternalStorageDirectory().getPath()+"/Android/data/dumplingyzr.hearthtracker/files/";
         XmlSerializer serializer = Xml.newSerializer();
         StringWriter writer = new StringWriter();
@@ -168,8 +168,11 @@ public class Deck implements Parcelable{
                 DateFormat df = new SimpleDateFormat("_yyyyMMddHHmmss");
                 Date date = new Date();
                 String currTime = df.format(date);
-                FileUtils.writeStringToFile(new File(path + this.name + currTime + ".deck.xml"), writer.toString());
+                String fileName = this.name + currTime;
+                FileUtils.writeStringToFile(new File(path + fileName + ".deck.xml"), writer.toString());
+                HearthTrackerUtils.addDeck(fileName);
             }
+            this.mIsSaved = true;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -210,16 +213,18 @@ public class Deck implements Parcelable{
                         cardId = xpp.getText();
                     } else if (tagName.equals("Count")){
                         for(int i=0;i<Integer.parseInt(xpp.getText());i++){
-                            addCard(CardAPI.getCardById(cardId));
+                            this.addCard(CardAPI.getCardById(cardId));
                         }
                     } else if (tagName.equals("Name")){
-                        name = xpp.getText();
+                        this.name = xpp.getText();
                     } else if (tagName.equals("Class")){
-                        classIndex = Card.playerClassToClassIndex(xpp.getText());
+                        this.classIndex = Card.playerClassToClassIndex(xpp.getText());
                     }
                 }
                 eventType = xpp.next();
             }
+            this.mIsSaved = true;
+            System.out.println("Deck Created");
         } catch (Exception e){
 
         }

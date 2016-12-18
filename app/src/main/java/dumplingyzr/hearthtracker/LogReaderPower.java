@@ -187,7 +187,7 @@ public class LogReaderPower implements Runnable {
                         mState = STATE_IDLE;
                         break;
                     }
-                    String username = HearthTrackerApplication.username;
+                    String username = HearthTrackerUtils.username;
                     if(username.equals("")) {
                         mState = STATE_FIND_FIRSTPLAYER;
                     } else {
@@ -225,7 +225,7 @@ public class LogReaderPower implements Runnable {
                         mLogParserTask.setLogReaderCard(m.group(2));
                         mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
 
-                        HearthTrackerApplication.username = mPlayerNames.get(0);
+                        HearthTrackerUtils.username = mPlayerNames.get(0);
                         mState = STATE_INITIAL_HAND;
                     }
                 } else if (line.startsWith("TAG_CHANGE")) {
@@ -236,7 +236,7 @@ public class LogReaderPower implements Runnable {
                         mOpponent = new Player(mPlayerNames.get(0));
                         mLogParserTask.setLogReaderPlayerClass(mPlayerHeroes.get(1));
                         mLogParserTask.handlePowerState(SET_PLAYER_HERO, POWER_TASK);
-                        HearthTrackerApplication.username = mPlayerNames.get(1);
+                        HearthTrackerUtils.username = mPlayerNames.get(1);
                         mState = STATE_INITIAL_HAND;
                     }
                 }

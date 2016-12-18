@@ -118,7 +118,7 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
         });
 
         Card card = mCards.get(position);
-        Context context = HearthTrackerApplication.getContext();
+        Context context = HearthTrackerUtils.getContext();
 
         try {
             if(card.cost == null) { textViewCost.setText("0"); }

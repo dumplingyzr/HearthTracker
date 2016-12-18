@@ -103,15 +103,14 @@ public class LogParser {
                 if(inputMessage.what == UI_SET_PLAYER_HERO) {
                     String heroId = logParserTask.getPlayerHeroId();
                     int classIndex = Card.heroIdToClassIndex(heroId);
-                    if (classIndex != CardListAdapter.getDeck().classIndex){
+                    if (classIndex != mCardListAdapter.getDeck().classIndex){
                         mCardListAdapter.startNewDeck(classIndex);
                         mCardListAdapter.startNewGame();
                     }
                     int drawableId;
-                    Context context = HearthTrackerApplication.getContext();
+                    Context context = HearthTrackerUtils.getContext();
                     drawableId = context.getResources().getIdentifier(heroId.toLowerCase(), "drawable", context.getPackageName());
                     logParserTask.getHeroImageView().setBackground(context.getDrawable(drawableId));
-                    //TODO
                 }
             }
         };

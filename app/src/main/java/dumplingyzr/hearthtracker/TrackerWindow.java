@@ -20,12 +20,18 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class TrackerWindow extends Service {
-    private static Context sContext = HearthTrackerApplication.getContext();
+    private static Context sContext = HearthTrackerUtils.getContext();
     private WindowManager mWindowManager;
     private View mView;
     private View mButtonView;
+    private View mDeckListView;
     private int mWindowWidth = dp2Pixel(150);
+
+    WindowManager.LayoutParams mDeckListParams;
 
     private static final int WITH_COUNT = 0;
     private static final int WITHOUT_COUNT = 1;
@@ -75,6 +81,22 @@ public class TrackerWindow extends Service {
         buttonParams.x = 0;
         buttonParams.y = dp2Pixel(35);
 
+        mDeckListParams = new WindowManager.LayoutParams(
+                mWindowWidth, //width
+                dp2Pixel(37)*(HearthTrackerUtils.sUserDecks.size()+1), //height
+                WindowManager.LayoutParams.TYPE_PHONE, //type
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, //flag
+                PixelFormat.TRANSLUCENT);
+        mDeckListParams.gravity = Gravity.TOP | Gravity.START;
+        mDeckListParams.x = 0;
+        mDeckListParams.y = dp2Pixel(70);
+
+        mDeckListView = layoutInflater.inflate(R.layout.deck_list_recycler, null);
+        RecyclerView deckListRecyclerView = (RecyclerView) mDeckListView.findViewById(R.id.recycler_view);
+        deckListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mDeckListView.setVisibility(View.GONE);
+
         mView = layoutInflater.inflate(R.layout.log_window, null);
         mButtonView = layoutInflater.inflate(R.layout.control_buttons, null);
         mView.setVisibility(View.GONE);
@@ -82,6 +104,7 @@ public class TrackerWindow extends Service {
 
         mWindowManager.addView(mButtonView, buttonParams);
         mWindowManager.addView(mView, logWindowParams);
+        mWindowManager.addView(mDeckListView, mDeckListParams);
 
         final ImageButton buttonStop = (ImageButton) mButtonView.findViewById(R.id.stop);
         final ImageButton buttonHide = (ImageButton) mButtonView.findViewById(R.id.hide);
@@ -94,22 +117,24 @@ public class TrackerWindow extends Service {
         mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        HearthTrackerApplication.username = sSharedPref.getString("UserName", "");
+        HearthTrackerUtils.username = sSharedPref.getString("UserName", "");
         String activeDeckName = sSharedPref.getString("ActiveDeckName", "");
+        mAdapter = new CardListAdapter();
         if(!activeDeckName.equals("")){
             Deck activeDeck = new Deck();
             activeDeck.createFromXml(activeDeckName);
             if(activeDeck.classIndex >= 0 && activeDeck.classIndex < 9){
                 String heroId = Card.classIndexToHeroId(activeDeck.classIndex);
                 int drawableId;
-                Context context = HearthTrackerApplication.getContext();
+                Context context = HearthTrackerUtils.getContext();
                 drawableId = context.getResources().getIdentifier(heroId.toLowerCase(), "drawable", context.getPackageName());
                 imageView.setBackground(context.getDrawable(drawableId));
             }
-            CardListAdapter.setActiveDeck(activeDeck);
+            mAdapter.setActiveDeck(activeDeck);
         }
-        mAdapter = new CardListAdapter();
         recyclerView.setAdapter(mAdapter);
+        deckListRecyclerView.setAdapter(
+                new DeckListAdapter(HearthTrackerUtils.sUserDecks, mAdapter, mDeckListView, imageView));
 
         LogParserTask mLogReaderThread;
         mLogReaderThread = LogParser.init(mAdapter, imageView, textView);
@@ -117,6 +142,7 @@ public class TrackerWindow extends Service {
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                stopSelf();
                 saveUserMetrics();
                 System.exit(0);
             }
@@ -136,22 +162,30 @@ public class TrackerWindow extends Service {
             }
         });
 
-        /*buttonMenu.setOnClickListener(new View.OnClickListener() {
-            //WindowManager.LayoutParams updatedParameters = mParams;
+        buttonMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAdapter.onCardDraw(CardAPI.getRandomCard());
-                Toast toast = Toast.makeText(getApplicationContext(), "meow", Toast.LENGTH_SHORT);
-                toast.show();
+                if(mDeckListView.getVisibility() == View.GONE) {
+                    mDeckListView.setVisibility(View.VISIBLE);
+                }
+                else if(mDeckListView.getVisibility() == View.VISIBLE) {
+                    mDeckListView.setVisibility(View.GONE);
+                }
             }
-        });*/
+        });
 
     }
 
-    public static void saveUserMetrics() {
-        CardListAdapter.getDeck().saveCards();
-        sEditor.putString("ActiveDeckName", CardListAdapter.getDeck().name);
-        sEditor.putString("UserName", HearthTrackerApplication.username);
+    public void saveUserMetrics() {
+        mAdapter.getDeck().saveCards();
+        sEditor.putString("ActiveDeckName", mAdapter.getDeck().name);
+        sEditor.putString("UserName", HearthTrackerUtils.username);
+        final int num = HearthTrackerUtils.sUserDeckNames.size();
+        Set<String> deckName = new HashSet<>();
+        for(int i=0;i<num;i++){
+            deckName.add(HearthTrackerUtils.sUserDeckNames.get(i));
+        }
+        sEditor.putStringSet("UserDeckNames", deckName);
         sEditor.commit();
     }
 
@@ -169,8 +203,13 @@ public class TrackerWindow extends Service {
         }
     }
 
-    public int dp2Pixel(int pixel) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixel, Resources.getSystem().getDisplayMetrics());
+    public int dp2Pixel(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        saveUserMetrics();
+    }
 }

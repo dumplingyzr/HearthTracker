@@ -1,13 +1,10 @@
 package dumplingyzr.hearthtracker;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -74,7 +71,7 @@ public class ClassSelectActivity extends AppCompatActivity {
 
     private void LaunchDeckCreateActivity() {
         Intent newIntent = new Intent();
-        newIntent.setClass(HearthTrackerApplication.getContext(), DeckCreateActivity.class);
+        newIntent.setClass(HearthTrackerUtils.getContext(), DeckCreateActivity.class);
         newIntent.putExtra("classIndex", mClassIndex);
         EditText editText = (EditText) findViewById(R.id.deck_name);
         mDeckName = editText.getText().toString();
