@@ -45,13 +45,13 @@ public class MainActivity extends AppCompatActivity {
 
         Button buttonNewDeck = (Button) findViewById(R.id.new_deck);
 
-        if(savedInstanceState == null) {
+        //if(savedInstanceState == null) {
             buttonStart.setText("Loading Card Database");
             buttonStart.setEnabled(false);
             new CardAPI().init(this);
-        } else {
-            onCardsReady();
-        }
+        //} else {
+        //    onCardsReady();
+        //}
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override

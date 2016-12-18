@@ -39,6 +39,7 @@ public class Deck implements Parcelable{
 
     public int numOfCards = 0;
     public String name = "AUTO_DETECT";
+    public String path;
     public int classIndex = -1;
     public int type = 0;
 
@@ -179,6 +180,8 @@ public class Deck implements Parcelable{
     }
 
     public void createFromXml(String deckName){
+
+        this.path = deckName;
 
         try {
             String path = Environment.getExternalStorageDirectory().getPath()

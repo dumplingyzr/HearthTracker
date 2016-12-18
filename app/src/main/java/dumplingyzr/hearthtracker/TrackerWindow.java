@@ -178,7 +178,7 @@ public class TrackerWindow extends Service {
 
     public void saveUserMetrics() {
         mAdapter.getDeck().saveCards();
-        sEditor.putString("ActiveDeckName", mAdapter.getDeck().name);
+        sEditor.putString("ActiveDeckName", mAdapter.getDeck().path);
         sEditor.putString("UserName", HearthTrackerUtils.username);
         final int num = HearthTrackerUtils.sUserDeckNames.size();
         Set<String> deckName = new HashSet<>();
@@ -199,6 +199,7 @@ public class TrackerWindow extends Service {
             mButtonView.setVisibility(View.VISIBLE);
         } else {
             mView.setVisibility(View.GONE);
+            mDeckListView.setVisibility(View.GONE);
             mButtonView.setVisibility(View.GONE);
         }
     }

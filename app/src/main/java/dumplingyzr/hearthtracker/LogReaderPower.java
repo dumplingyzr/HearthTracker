@@ -374,7 +374,7 @@ public class LogReaderPower implements Runnable {
                 if(s.equals("Gang Up")){
                     addTargetCardToDeck(m.group(3), 3);
                 }
-                if(s.equals("Jade Idol") && m.group(2).equals("1")){
+                if(s.equals("Jade Idol") && (m.group(2).equals("1") || m.group(2).equals("-1"))){
                     addKnownCardToDeck("CFM_602", 3);
                 }
                 if(s.equals("Doomcaller")){
@@ -422,11 +422,14 @@ public class LogReaderPower implements Runnable {
             mLogParserTask.setLogReaderLine("Turn " + mTurn.toString() + "\n");
             mLogParserTask.handlePowerState(DISPLAY_LINE, POWER_TASK);
         } else if(line.startsWith("SHOW_ENTITY")) {
-            Pattern p = Pattern.compile(".*Updating Entity=.*zone=DECK.*CardID=(.*)");
+            Pattern p = Pattern.compile(".*Updating Entity=.*zone=DECK.*player=(.).*CardID=(.*)");
             Matcher m = p.matcher(line);
             if (m.matches()) {
-                mLogParserTask.setLogReaderCard(m.group(1));
-                mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                //Check if it is player, was failing for patches the pirate
+                if(Integer.parseInt(m.group(1))==mPlayerIndex) {
+                    mLogParserTask.setLogReaderCard(m.group(2));
+                    mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
+                }
             }
         } else if(line.startsWith("BLOCK_START BlockType=POWER")){
             Pattern p = Pattern.compile(".*name=(.*) id=.*EffectIndex=(.*) Target=(.*)");
