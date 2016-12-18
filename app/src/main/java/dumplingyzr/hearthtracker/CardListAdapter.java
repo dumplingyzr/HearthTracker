@@ -209,8 +209,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 }
                 notifyDataSetChanged();
             } else {
-                Toast toast = Toast.makeText(HearthTrackerUtils.getContext(),"Error Detected",Toast.LENGTH_SHORT);
-                toast.show();
+                System.out.println("Card Missed " + card.id);
             }
         }
     }
