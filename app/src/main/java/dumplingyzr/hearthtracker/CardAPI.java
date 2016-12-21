@@ -146,7 +146,7 @@ public class CardAPI {
         protected void onPostExecute(String result) {
             sCardsJson = result;
             storeCards();
-            mMainActivity.onCardsReady();
+            //mMainActivity.onCardsReady();
         }
     }
 

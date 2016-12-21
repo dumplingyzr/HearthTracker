@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by dumplingyzr on 2016/11/28.
@@ -22,7 +25,7 @@ public class ClassSelectActivity extends AppCompatActivity {
     private int mDeckType = 0;
     private static final int STANDARD_DECK = 0;
     private static final int WILD_DECK = 1;
-
+    private EditText mEditText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +34,12 @@ public class ClassSelectActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Create Deck");
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
+        mEditText = (EditText) findViewById(R.id.deck_name);
         final GridView gridView = (GridView) this.findViewById(R.id.class_grid);
         ClassSelectAdapter classSelectAdapter = new ClassSelectAdapter();
         gridView.setAdapter(classSelectAdapter);
@@ -51,11 +59,16 @@ public class ClassSelectActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 if(mClassIndex != -1) {
                     View prevView = gridView.getChildAt(mClassIndex);
+                    TextView prevTextView = (TextView) prevView.findViewById(R.id.class_name);
                     prevView.setBackgroundColor(Color.TRANSPARENT);
+                    prevTextView.setTextColor(Color.BLACK);
                 }
-                view.setBackgroundColor(Color.GRAY);
+                view.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                TextView textView = (TextView) view.findViewById(R.id.class_name);
+                textView.setTextColor(Color.WHITE);
                 mClassIndex = position;
                 button.setEnabled(true);
+                mEditText.setText("Custom " + StringUtils.capitalize(Card.classIndexToPlayerClass(mClassIndex).toLowerCase()));
             }
         });
 
@@ -73,9 +86,9 @@ public class ClassSelectActivity extends AppCompatActivity {
         Intent newIntent = new Intent();
         newIntent.setClass(HearthTrackerUtils.getContext(), DeckCreateActivity.class);
         newIntent.putExtra("classIndex", mClassIndex);
-        EditText editText = (EditText) findViewById(R.id.deck_name);
-        mDeckName = editText.getText().toString();
-        if(mDeckName.equals("")) { mDeckName = "custom " + Card.classIndexToPlayerClass(mClassIndex).toLowerCase(); }
+
+        mDeckName = mEditText.getText().toString();
+        if(mDeckName.equals("")) { mDeckName = "Custom " + StringUtils.capitalize(Card.classIndexToPlayerClass(mClassIndex).toLowerCase()); }
         newIntent.putExtra("deckName", mDeckName);
         newIntent.putExtra("deckType", mDeckType);
         startActivity(newIntent);

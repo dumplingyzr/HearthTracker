@@ -2,25 +2,32 @@ package dumplingyzr.hearthtracker;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 1;
@@ -30,28 +37,41 @@ public class MainActivity extends AppCompatActivity {
     public static final String HEARTHSTONE_PACKAGE_ID = "com.blizzard.wtcg.hearthstone";
     private File mFile = new File(HEARTHSTONE_FILES_DIR + "log.config");
     private Intent mServiceIntent = new Intent();
+    private ActionBarDrawerToggle mDrawerToggle;
 
-    public Button buttonStart;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
+    @BindView(R.id.drawer) NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         HearthTrackerUtils.setContext(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
 
-        buttonStart = (Button) findViewById(R.id.start);
+        setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        setupDrawer();
+
+        if (savedInstanceState == null){
+            getSupportFragmentManager()
+                    .beginTransaction();
+                    //.add(R.id.fragment_container, 9);
+        }
+
+        new CardAPI().init(this);
+        /*buttonStart = (Button) findViewById(R.id.start);
 
         Button buttonNewDeck = (Button) findViewById(R.id.new_deck);
 
-        //if(savedInstanceState == null) {
-            buttonStart.setText("Loading Card Database");
-            buttonStart.setEnabled(false);
-            new CardAPI().init(this);
-        //} else {
-        //    onCardsReady();
-        //}
+        buttonStart.setText("Loading Card Database");
+        buttonStart.setEnabled(false);
+
+
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,15 +85,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 LaunchClassSelectActivity();
             }
-        });
+        });*/
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
 
     public boolean hasAllPermissions() {
         boolean has = checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -139,9 +154,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            buttonStart.setText("HearthTracker is running");
-            buttonStart.setEnabled(false);
-
+            //buttonStart.setText("HearthTracker is running");
+            //buttonStart.setEnabled(false);
 
             mServiceIntent.setClass(MainActivity.this, TrackerWindow.class);
             startService(mServiceIntent);
@@ -154,8 +168,8 @@ public class MainActivity extends AppCompatActivity {
         serviceIntent.setClass(MainActivity.this, TrackerWindow.class);
         startService(serviceIntent);
 
-        buttonStart.setText("HearthTracker is running");
-        buttonStart.setEnabled(false);
+        //buttonStart.setText("HearthTracker is running");
+        //buttonStart.setEnabled(false);
         Toast toast = Toast.makeText(this, "HearthTracker is started.\nPlease open Hearthstone game. Enjoy!", Toast.LENGTH_LONG);
         toast.show();
     }
@@ -166,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(newIntent);
     }
 
-    public void onCardsReady(){
+    /*public void onCardsReady(){
         buttonStart.setEnabled(true);
         if (hasAllPermissions()) {
             buttonStart.setText("Start HearthTracker");
@@ -174,5 +188,76 @@ public class MainActivity extends AppCompatActivity {
             buttonStart.setText("Authorize and start HearthTracker");
         }
         HearthTrackerUtils.loadUserDecks();
+    }*/
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setupDrawer() {
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                drawerLayout,          /* DrawerLayout object */
+                R.string.open_drawer,         /* "open drawer" description */
+                R.string.close_drawer         /* "close drawer" description */
+        );
+
+        drawerLayout.setDrawerListener(mDrawerToggle);
+
+        //View headerView = navigationView.getHeaderView(0);
+
+        //((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText(
+        //        Dribbble.getCurrentUser().name);
+
+        /*headerView.findViewById(R.id.nav_header_logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dribbble.logout(MainActivity.this);
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });*/
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                /*if (item.isChecked()) {
+                    drawerLayout.closeDrawers();
+                    return true;
+                }*/
+
+                //Fragment fragment = null;
+                switch (item.getItemId()) {
+                    case R.id.start_tracker:
+                        drawerLayout.closeDrawers();
+                        LaunchLogWindow();
+                        return true;
+                    case R.id.new_deck:
+                        drawerLayout.closeDrawers();
+                        LaunchClassSelectActivity();
+                        return true;
+                }
+
+                return false;
+            }
+        });
     }
 }

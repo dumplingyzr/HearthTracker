@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/start_tracker"
+            android:checked="true"
+            android:title="Start HearthTracker"/>
+        <item
+            android:id="@+id/new_deck"
+            android:title="Create New Deck"/>
+    </group>
+</menu>

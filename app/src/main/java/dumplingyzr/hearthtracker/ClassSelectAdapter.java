@@ -47,7 +47,6 @@ public class ClassSelectAdapter extends BaseAdapter {
         imageView.setImageResource(mClassImages[position]);
         TextView textView = (TextView) view.findViewById(R.id.class_name);
         textView.setText(mClassNames[position]);
-
         return view;
     }
 }
