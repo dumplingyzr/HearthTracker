@@ -2,6 +2,7 @@ package dumplingyzr.hearthtracker;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -11,15 +12,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -28,6 +25,8 @@ import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dumplingyzr.hearthtracker.activities.ClassSelectActivity;
+import dumplingyzr.hearthtracker.tracker_window.TrackerWindow;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 1;
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
             "/Android/data/com.blizzard.wtcg.hearthstone/files/";
     public static final String HEARTHSTONE_PACKAGE_ID = "com.blizzard.wtcg.hearthstone";
     private File mFile = new File(HEARTHSTONE_FILES_DIR + "log.config");
-    private Intent mServiceIntent = new Intent();
     private ActionBarDrawerToggle mDrawerToggle;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -51,46 +49,23 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
 
         setupDrawer();
 
         if (savedInstanceState == null){
+            new CardAPI().init(this);
             getSupportFragmentManager()
                     .beginTransaction();
                     //.add(R.id.fragment_container, 9);
         }
 
-        new CardAPI().init(this);
-        /*buttonStart = (Button) findViewById(R.id.start);
-
-        Button buttonNewDeck = (Button) findViewById(R.id.new_deck);
-
-        buttonStart.setText("Loading Card Database");
-        buttonStart.setEnabled(false);
-
-
-
-        buttonStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LaunchLogWindow();
-            }
-        });
-
-        buttonNewDeck.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                LaunchClassSelectActivity();
-            }
-        });*/
-
     }
 
-
-    public boolean hasAllPermissions() {
+    /*public boolean hasAllPermissions() {
         boolean has = checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                 && checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
 
@@ -98,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             has &= android.provider.Settings.canDrawOverlays(this);
         }
         return has && mFile.exists();
-    }
+    }*/
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -154,24 +129,16 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //buttonStart.setText("HearthTracker is running");
-            //buttonStart.setEnabled(false);
-
-            mServiceIntent.setClass(MainActivity.this, TrackerWindow.class);
-            startService(mServiceIntent);
 
             Toast.makeText(this, "HearthTracker setup completed. Please kill and restart HearthStone.", Toast.LENGTH_LONG).show();
-            return;
+        } else {
+            Toast.makeText(this, "HearthTracker is started.\nPlease open Hearthstone game. Enjoy!", Toast.LENGTH_LONG).show();
         }
 
         Intent serviceIntent = new Intent();
         serviceIntent.setClass(MainActivity.this, TrackerWindow.class);
         startService(serviceIntent);
 
-        //buttonStart.setText("HearthTracker is running");
-        //buttonStart.setEnabled(false);
-        Toast toast = Toast.makeText(this, "HearthTracker is started.\nPlease open Hearthstone game. Enjoy!", Toast.LENGTH_LONG);
-        toast.show();
     }
 
     private void LaunchClassSelectActivity() {
@@ -204,10 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return mDrawerToggle.onOptionsItemSelected(item) ||
+                super.onOptionsItemSelected(item);
     }
 
     private void setupDrawer() {
@@ -220,31 +185,9 @@ public class MainActivity extends AppCompatActivity {
 
         drawerLayout.setDrawerListener(mDrawerToggle);
 
-        //View headerView = navigationView.getHeaderView(0);
-
-        //((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText(
-        //        Dribbble.getCurrentUser().name);
-
-        /*headerView.findViewById(R.id.nav_header_logout).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Dribbble.logout(MainActivity.this);
-
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });*/
-
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                /*if (item.isChecked()) {
-                    drawerLayout.closeDrawers();
-                    return true;
-                }*/
-
-                //Fragment fragment = null;
                 switch (item.getItemId()) {
                     case R.id.start_tracker:
                         drawerLayout.closeDrawers();
@@ -255,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
                         LaunchClassSelectActivity();
                         return true;
                 }
-
                 return false;
             }
         });

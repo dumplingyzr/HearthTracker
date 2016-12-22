@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.parsers;
 
 import android.content.Context;
 import android.os.Handler;
@@ -11,6 +11,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.tracker_window.CardListAdapter;
+import dumplingyzr.hearthtracker.HearthTrackerUtils;
 
 /**
  * Created by dumplingyzr on 2016/11/17.

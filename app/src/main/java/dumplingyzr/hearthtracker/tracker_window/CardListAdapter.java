@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.tracker_window;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -12,6 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
+
+import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.Deck;
+import dumplingyzr.hearthtracker.HearthTrackerUtils;
+import dumplingyzr.hearthtracker.R;
 
 
 /**

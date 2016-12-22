@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.parsers;
 
 import android.os.Process;
 import android.util.SparseArray;
@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dumplingyzr.hearthtracker.HearthTrackerUtils;
+import dumplingyzr.hearthtracker.MainActivity;
 import timber.log.Timber;
 
 /**

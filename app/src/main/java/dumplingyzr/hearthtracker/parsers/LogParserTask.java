@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.parsers;
 
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -7,14 +7,16 @@ import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import dumplingyzr.hearthtracker.LogReaderPower.RunnablePowerLogReaderMethods;
-import dumplingyzr.hearthtracker.LogReaderLoadingScreen.RunnableLoadingScreenLogReaderMethods;
+import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.CardAPI;
+import dumplingyzr.hearthtracker.tracker_window.CardListAdapter;
+
 /**
  * Created by dumplingyzr on 2016/11/17.
  */
 
 public class LogParserTask implements
-        RunnablePowerLogReaderMethods, RunnableLoadingScreenLogReaderMethods {
+        LogReaderPower.RunnablePowerLogReaderMethods, LogReaderLoadingScreen.RunnableLoadingScreenLogReaderMethods {
     private Queue<String> mStringQueue;
     private Queue<String> mCardIdQueue;
     private Queue<Integer> mCardCountQueue;

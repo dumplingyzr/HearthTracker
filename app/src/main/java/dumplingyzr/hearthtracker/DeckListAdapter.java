@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import dumplingyzr.hearthtracker.tracker_window.CardListAdapter;
+
 
 /**
  * Created by dumplingyzr on 2016/11/24.

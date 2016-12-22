@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.tracker_window;
 
 import android.app.Service;
 import android.content.Context;
@@ -22,6 +22,14 @@ import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.Deck;
+import dumplingyzr.hearthtracker.DeckListAdapter;
+import dumplingyzr.hearthtracker.HearthTrackerUtils;
+import dumplingyzr.hearthtracker.R;
+import dumplingyzr.hearthtracker.parsers.LogParser;
+import dumplingyzr.hearthtracker.parsers.LogParserTask;
 
 public class TrackerWindow extends Service {
     private static Context sContext = HearthTrackerUtils.getContext();

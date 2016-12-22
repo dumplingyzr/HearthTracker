@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.parsers;
 
 import android.os.Process;
 
@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import dumplingyzr.hearthtracker.MainActivity;
 
 /**
  * Created by dumplingyzr on 2016/11/22.

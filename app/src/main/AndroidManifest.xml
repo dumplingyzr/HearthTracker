@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:fullBackupContent="true"
-        android:theme="@style/HearthTrackerTheme">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">
@@ -21,17 +21,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DeckCreateActivity"
-            android:parentActivityName=".ClassSelectActivity" >
+            android:name=".activities.DeckCreateActivity"
+            android:parentActivityName=".activities.ClassSelectActivity" >
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".ClassSelectActivity"
+            android:name=".activities.ClassSelectActivity"
+            android:windowSoftInputMode="stateHidden"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
         </activity>
         <service
-            android:name=".TrackerWindow"
+            android:name=".tracker_window.TrackerWindow"
             android:configChanges="orientation">
         </service>
     </application>
