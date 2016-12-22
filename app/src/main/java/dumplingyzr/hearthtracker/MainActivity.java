@@ -2,7 +2,6 @@ package dumplingyzr.hearthtracker;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +26,7 @@ import java.io.InputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dumplingyzr.hearthtracker.activities.ClassSelectActivity;
+import dumplingyzr.hearthtracker.fragments.DeckListFragment;
 import dumplingyzr.hearthtracker.tracker_window.TrackerWindow;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,8 +60,9 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null){
             new CardAPI().init(this);
             getSupportFragmentManager()
-                    .beginTransaction();
-                    //.add(R.id.fragment_container, 9);
+                    .beginTransaction()
+                    .add(R.id.fragment_container, DeckListFragment.newInstance())
+                    .commit();
         }
 
     }

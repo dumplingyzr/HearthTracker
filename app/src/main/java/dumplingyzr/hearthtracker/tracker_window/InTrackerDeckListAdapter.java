@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker;
+package dumplingyzr.hearthtracker.tracker_window;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -11,14 +11,17 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import dumplingyzr.hearthtracker.tracker_window.CardListAdapter;
+import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.Deck;
+import dumplingyzr.hearthtracker.HearthTrackerUtils;
+import dumplingyzr.hearthtracker.R;
 
 
 /**
  * Created by dumplingyzr on 2016/11/24.
  */
 
-public class DeckListAdapter extends RecyclerView.Adapter<DeckListAdapter.ViewHolder>{
+public class InTrackerDeckListAdapter extends RecyclerView.Adapter<InTrackerDeckListAdapter.ViewHolder>{
     private ArrayList<Deck> mDecks;
     private CardListAdapter mCardListAdapter;
     private View mParent;
@@ -37,8 +40,8 @@ public class DeckListAdapter extends RecyclerView.Adapter<DeckListAdapter.ViewHo
     }
 
     @Override
-    public DeckListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.deck_list_item, parent, false);
+    public InTrackerDeckListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.deck_list_item_in_tracker, parent, false);
         return new ViewHolder(view);
     }
 
@@ -93,7 +96,7 @@ public class DeckListAdapter extends RecyclerView.Adapter<DeckListAdapter.ViewHo
         return mDecks.size()+1;
     }
 
-    public DeckListAdapter(
+    public InTrackerDeckListAdapter(
             ArrayList<Deck> decks,
             CardListAdapter adapter,
             View parent,

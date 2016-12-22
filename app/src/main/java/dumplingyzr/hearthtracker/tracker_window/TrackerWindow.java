@@ -25,7 +25,6 @@ import java.util.Set;
 
 import dumplingyzr.hearthtracker.Card;
 import dumplingyzr.hearthtracker.Deck;
-import dumplingyzr.hearthtracker.DeckListAdapter;
 import dumplingyzr.hearthtracker.HearthTrackerUtils;
 import dumplingyzr.hearthtracker.R;
 import dumplingyzr.hearthtracker.parsers.LogParser;
@@ -142,7 +141,7 @@ public class TrackerWindow extends Service {
         }
         recyclerView.setAdapter(mAdapter);
         deckListRecyclerView.setAdapter(
-                new DeckListAdapter(HearthTrackerUtils.sUserDecks, mAdapter, mDeckListView, imageView));
+                new InTrackerDeckListAdapter(HearthTrackerUtils.sUserDecks, mAdapter, mDeckListView, imageView));
 
         LogParserTask mLogReaderThread;
         mLogReaderThread = LogParser.init(mAdapter, imageView, textView);
