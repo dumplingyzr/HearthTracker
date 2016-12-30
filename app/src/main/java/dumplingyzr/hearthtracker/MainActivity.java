@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        HearthTrackerUtils.setContext(this);
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
@@ -58,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
         setupDrawer();
 
         if (savedInstanceState == null){
-            new CardAPI().init(this);
+            new CardAPI().init();
+            Utils.getUserMetrics(this);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.fragment_container, DeckListFragment.newInstance())
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             buttonStart.setText("Authorize and start HearthTracker");
         }
-        HearthTrackerUtils.loadUserDecks();
+        Utils.loadUserDecks();
     }*/
 
     @Override
@@ -203,5 +202,11 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Utils.saveUserMetrics(this);
     }
 }

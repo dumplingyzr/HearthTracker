@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import dumplingyzr.hearthtracker.HearthTrackerUtils;
+import dumplingyzr.hearthtracker.Utils;
 import dumplingyzr.hearthtracker.MainActivity;
 import timber.log.Timber;
 
@@ -228,7 +228,7 @@ public class LogReaderPower implements Runnable {
                 mState = STATE_IDLE;
                 return;
             }
-            String username = HearthTrackerUtils.username;
+            String username = Utils.sUserName;
             if(username.equals("")) {
                 mState = STATE_FIND_FIRSTPLAYER;
             } else {
@@ -266,7 +266,7 @@ public class LogReaderPower implements Runnable {
                 mLogParserTask.setLogReaderCard(m.group(2));
                 mLogParserTask.handlePowerState(DISPLAY_CARD, POWER_TASK);
 
-                HearthTrackerUtils.username = mPlayerNames.get(0);
+                Utils.sUserName = mPlayerNames.get(0);
                 mState = STATE_INITIAL_HAND;
             }
         } else if (line.startsWith("TAG_CHANGE")) {
@@ -277,7 +277,7 @@ public class LogReaderPower implements Runnable {
                 mOpponent = new Player(mPlayerNames.get(0));
                 mLogParserTask.setLogReaderPlayerClass(mPlayerHeroes.get(1));
                 mLogParserTask.handlePowerState(SET_PLAYER_HERO, POWER_TASK);
-                HearthTrackerUtils.username = mPlayerNames.get(1);
+                Utils.sUserName = mPlayerNames.get(1);
                 mState = STATE_INITIAL_HAND;
             }
         }

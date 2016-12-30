@@ -171,7 +171,7 @@ public class Deck implements Parcelable{
                 String currTime = df.format(date);
                 String fileName = this.name + currTime;
                 FileUtils.writeStringToFile(new File(path + fileName + ".deck.xml"), writer.toString());
-                HearthTrackerUtils.addDeck(fileName);
+                Utils.addDeck(fileName);
             }
             this.mIsSaved = true;
         } catch (Exception e) {

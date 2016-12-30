@@ -14,8 +14,8 @@ import android.widget.Toast;
 import java.util.HashMap;
 
 import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.CardAPI;
 import dumplingyzr.hearthtracker.Deck;
-import dumplingyzr.hearthtracker.HearthTrackerUtils;
 import dumplingyzr.hearthtracker.R;
 
 
@@ -34,7 +34,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     private Deck mActiveDeck = new Deck();
     private Deck mAddedCards = new Deck();
     private HashMap<String, Integer> mCardCount = new HashMap<>();
-    private int mAnimatePosition = -1;
+    private Context mContext;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
@@ -71,7 +71,6 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         TextView textViewCount = viewHolder.mTextViewCount;
 
         Card card = mCards.get(position);
-        Context context = HearthTrackerUtils.getContext();
 
         if(card.id.equals("unknown")){
             textViewName.setText(mCardCount.get(card.id).toString() + " unknown");
@@ -91,8 +90,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
         try {
             int drawableId;
-            drawableId = context.getResources().getIdentifier(card.id.toLowerCase(), "drawable", context.getPackageName());
-            imageView.setBackground(context.getDrawable(drawableId));
+            drawableId = mContext.getResources().getIdentifier(card.id.toLowerCase(), "drawable", mContext.getPackageName());
+            imageView.setBackground(mContext.getDrawable(drawableId));
             imageView.getBackground().setAlpha(255);
 
             textViewName.setText(card.name);
@@ -102,16 +101,16 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 textViewCost.setText(String.format("%d", card.cost));
                 switch (card.rarity) {
                     case "RARE":
-                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.rare));
+                        textViewCost.setBackgroundColor(mContext.getResources().getColor(R.color.rare));
                         break;
                     case "EPIC":
-                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.epic));
+                        textViewCost.setBackgroundColor(mContext.getResources().getColor(R.color.epic));
                         break;
                     case "LEGENDARY":
-                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.legendary));
+                        textViewCost.setBackgroundColor(mContext.getResources().getColor(R.color.legendary));
                         break;
                     default:
-                        textViewCost.setBackgroundColor(context.getResources().getColor(R.color.common));
+                        textViewCost.setBackgroundColor(mContext.getResources().getColor(R.color.common));
                         break;
                 }
             }
@@ -136,45 +135,9 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         return mCards.size();
     }
 
-    public CardListAdapter() {
-        mCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
-            @Override
-            public int compare(Card c1, Card c2) {
-                int res = c1.cost.compareTo(c2.cost);
-                return res == 0 ? c1.name.compareTo(c2.name) : res;
-            }
-
-            @Override
-            public void onInserted(int position, int count) {
-                notifyItemRangeInserted(position, count);
-            }
-
-            @Override
-            public void onRemoved(int position, int count) {
-                notifyItemRangeRemoved(position, count);
-            }
-
-            @Override
-            public void onMoved(int fromPosition, int toPosition) {
-                notifyItemMoved(fromPosition, toPosition);
-            }
-
-            @Override
-            public void onChanged(int position, int count) {
-                notifyItemRangeChanged(position, count);
-            }
-
-            @Override
-            public boolean areContentsTheSame(Card c1, Card c2) {
-                // return whether the items' visual representations are the same or not.
-                return c1.id.equals(c2.id);
-            }
-
-            @Override
-            public boolean areItemsTheSame(Card c1, Card c2) {
-                return c1.id.equals(c2.id);
-            }
-        });
+    public CardListAdapter(Context context) {
+        mContext = context;
+        mCards = CardAPI.newSortedList();
         while(!mActiveDeck.isComplete()){
             mActiveDeck.addCard(Card.unknown());
         }
@@ -207,8 +170,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                 if(mCardCount.get("unknown") == 0) {
                     mCards.remove(card.unknown());
                     mActiveDeck.name = "custum " + Card.classIndexToPlayerClass(mActiveDeck.classIndex).toLowerCase();
-                    Toast toast = Toast.makeText(HearthTrackerUtils.getContext(),
-                            "Deck completed and saved as: " + mActiveDeck.name,Toast.LENGTH_LONG);
+                    Toast toast = Toast.makeText(mContext, "Deck completed and saved as: " + mActiveDeck.name,Toast.LENGTH_LONG);
                     toast.show();
                     mActiveDeck.saveCards();
                 }

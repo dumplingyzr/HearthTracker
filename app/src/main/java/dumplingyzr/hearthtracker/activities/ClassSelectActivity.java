@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dumplingyzr.hearthtracker.Card;
-import dumplingyzr.hearthtracker.HearthTrackerUtils;
 import dumplingyzr.hearthtracker.R;
 
 /**
@@ -66,7 +65,8 @@ public class ClassSelectActivity extends AppCompatActivity {
                 TextView textView = (TextView) view.findViewById(R.id.class_name);
                 textView.setTextColor(Color.WHITE);
                 mClassIndex = position;
-                editText.setText("Custom " + StringUtils.capitalize(Card.classIndexToPlayerClass(mClassIndex).toLowerCase()));
+                String text = "Custom " + StringUtils.capitalize(Card.classIndexToPlayerClass(mClassIndex).toLowerCase());
+                editText.setText(text);
             }
         });
 
@@ -93,6 +93,7 @@ public class ClassSelectActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select a class!", Toast.LENGTH_LONG).show();
             return false;
         } else {
+            mDeckName = editText.getText().toString();
             LaunchDeckCreateActivity();
             return true;
         }
@@ -100,10 +101,8 @@ public class ClassSelectActivity extends AppCompatActivity {
 
     private void LaunchDeckCreateActivity() {
         Intent newIntent = new Intent();
-        newIntent.setClass(HearthTrackerUtils.getContext(), DeckCreateActivity.class);
+        newIntent.setClass(this, DeckCreateActivity.class);
         newIntent.putExtra("classIndex", mClassIndex);
-
-        mDeckName = editText.getText().toString();
         newIntent.putExtra("deckName", mDeckName);
         newIntent.putExtra("deckType", mDeckType);
         startActivity(newIntent);

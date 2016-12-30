@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 import dumplingyzr.hearthtracker.Card;
 import dumplingyzr.hearthtracker.Deck;
-import dumplingyzr.hearthtracker.HearthTrackerUtils;
 import dumplingyzr.hearthtracker.R;
 
 
@@ -26,6 +25,7 @@ public class InTrackerDeckListAdapter extends RecyclerView.Adapter<InTrackerDeck
     private CardListAdapter mCardListAdapter;
     private View mParent;
     private ImageView mHeroImageView;
+    private Context mContext;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public View mView;
@@ -61,10 +61,9 @@ public class InTrackerDeckListAdapter extends RecyclerView.Adapter<InTrackerDeck
                 } else {
                     mCardListAdapter.setActiveDeck(mDecks.get(pos - 1));
                     int drawableId;
-                    Context context = HearthTrackerUtils.getContext();
                     String heroId = Card.classIndexToHeroId(mDecks.get(pos - 1).classIndex);
-                    drawableId = context.getResources().getIdentifier(heroId.toLowerCase(), "drawable", context.getPackageName());
-                    mHeroImageView.setBackground(context.getDrawable(drawableId));
+                    drawableId = mContext.getResources().getIdentifier(heroId.toLowerCase(), "drawable", mContext.getPackageName());
+                    mHeroImageView.setBackground(mContext.getDrawable(drawableId));
                 }
                 mParent.setVisibility(View.GONE);
             }
@@ -75,18 +74,17 @@ public class InTrackerDeckListAdapter extends RecyclerView.Adapter<InTrackerDeck
             return;
         }
         Deck deck = mDecks.get(position - 1);
-        Context context = HearthTrackerUtils.getContext();
 
         switch (deck.classIndex){
-            case 0: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_warrior_64)); break;
-            case 1: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_shaman_64)); break;
-            case 2: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_rogue_64)); break;
-            case 3: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_paladin_64)); break;
-            case 4: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_hunter_64)); break;
-            case 5: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_druid_64)); break;
-            case 6: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_warlock_64)); break;
-            case 7: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_mage_64)); break;
-            case 8: imageView.setImageDrawable(context.getDrawable(R.drawable.icon_priest_64)); break;
+            case 0: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_warrior_64)); break;
+            case 1: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_shaman_64)); break;
+            case 2: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_rogue_64)); break;
+            case 3: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_paladin_64)); break;
+            case 4: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_hunter_64)); break;
+            case 5: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_druid_64)); break;
+            case 6: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_warlock_64)); break;
+            case 7: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_mage_64)); break;
+            case 8: imageView.setImageDrawable(mContext.getDrawable(R.drawable.icon_priest_64)); break;
         }
         textView.setText(deck.name);
     }
@@ -100,11 +98,13 @@ public class InTrackerDeckListAdapter extends RecyclerView.Adapter<InTrackerDeck
             ArrayList<Deck> decks,
             CardListAdapter adapter,
             View parent,
-            ImageView heroImageView) {
+            ImageView heroImageView,
+            Context context) {
         mDecks = decks;
         mCardListAdapter = adapter;
         mParent = parent;
         mHeroImageView = heroImageView;
+        mContext = context;
     }
 
 }

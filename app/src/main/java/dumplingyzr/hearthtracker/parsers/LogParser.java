@@ -13,8 +13,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import dumplingyzr.hearthtracker.Card;
+import dumplingyzr.hearthtracker.Utils;
 import dumplingyzr.hearthtracker.tracker_window.CardListAdapter;
-import dumplingyzr.hearthtracker.HearthTrackerUtils;
 
 /**
  * Created by dumplingyzr on 2016/11/17.
@@ -51,10 +51,9 @@ public class LogParser {
     private final ThreadPoolExecutor mPowerThreadPool;
     private final ThreadPoolExecutor mLoadingScreenThreadPool;
 
+    private Context mContext;
     private Handler mHandler;
     private CardListAdapter mCardListAdapter;
-    //private TextView mTextView;
-    //private ScrollView mScrollView;
     private static LogParserTask logParserTask;
     private static LogParser sInstance = null;
     static {
@@ -84,15 +83,7 @@ public class LogParser {
             public void handleMessage(Message inputMessage) {
                 LogParserTask logParserTask = (LogParserTask) inputMessage.obj;
                 mCardListAdapter = logParserTask.getCardListAdapter();
-                //mTextView = logParserTask.getTextView();
-                //mScrollView = logParserTask.getScrollView();
-                if(inputMessage.what == UI_DISPLAY_LINE) {
-                    //mTextView.append(logParserTask.getLine());
-                    //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-                }
                 if(inputMessage.what == UI_CLEAR_WINDOW) {
-                    //mTextView.setText("");
-                    //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
                     mCardListAdapter.startNewGame();
                 }
                 if(inputMessage.what == UI_DISPLAY_CARD) {
@@ -112,9 +103,8 @@ public class LogParser {
                         mCardListAdapter.startNewGame();
                     }
                     int drawableId;
-                    Context context = HearthTrackerUtils.getContext();
-                    drawableId = context.getResources().getIdentifier(heroId.toLowerCase(), "drawable", context.getPackageName());
-                    logParserTask.getHeroImageView().setBackground(context.getDrawable(drawableId));
+                    drawableId = mContext.getResources().getIdentifier(heroId.toLowerCase(), "drawable", mContext.getPackageName());
+                    logParserTask.getHeroImageView().setBackground(mContext.getDrawable(drawableId));
                 }
             }
         };
@@ -150,4 +140,7 @@ public class LogParser {
         completeMessage.sendToTarget();
     }
 
+    public void setContext(Context context){
+        mContext = context;
+    }
 }

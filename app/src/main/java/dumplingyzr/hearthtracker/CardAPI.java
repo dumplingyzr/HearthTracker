@@ -1,9 +1,6 @@
 package dumplingyzr.hearthtracker;
 
-import android.app.Activity;
 import android.os.AsyncTask;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
 import com.google.gson.reflect.TypeToken;
@@ -15,12 +12,9 @@ import okhttp3.Response;
 
 import java.util.ArrayList;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Created by dumplingyzr on 2016/11/16.
@@ -36,7 +30,6 @@ public class CardAPI {
     private static SortedList<Card> sStandardCards;
     private static HashMap<String, Card> sCardsByName = new HashMap<>();
     private static boolean sCardsReady;
-    private MainActivity mMainActivity;
 
     private static final int STANDARD_DECK = 0;
     private static final int WILD_DECK = 1;
@@ -45,8 +38,7 @@ public class CardAPI {
             "GANGS","KARA","OG","TGT","LOE","BRM","EXPERT1","CORE"
     };
     
-    public void init(MainActivity activity){
-        mMainActivity = activity;
+    public void init(){
         sLocale = "enUS";
         sStandardCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
@@ -177,7 +169,38 @@ public class CardAPI {
     }
 
     public static SortedList<Card> getCardsByClass(int classIndex, int type){
-        SortedList<Card> cardsByClass = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
+        SortedList<Card> cardsByClass = newSortedList();
+        if(type == STANDARD_DECK){
+            for(int i = 0; i< sStandardCards.size(); i++){
+                Card c = sStandardCards.get(i);
+                int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
+                if (cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex){
+                    cardsByClass.add(c);
+                }
+            }
+        } else if (type == WILD_DECK){
+            for(int i = 0; i< sCardsById.size(); i++){
+                Card c = sCardsById.get(i);
+                int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
+                if ((cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex) &&
+                        (c.type.equals("SPELL") || c.type.equals("MINION") || c.type.equals("WEAPON")) &&
+                        c.collectible){
+                    cardsByClass.add(c);
+                }
+            }
+        }
+        return cardsByClass;
+    }
+
+    private static boolean isStandard(String set){
+        for(String s:sStandardSet){
+            if(s.equals(set)) return true;
+        }
+        return false;
+    }
+
+    public static SortedList<Card> newSortedList(){
+        SortedList<Card> sortedList = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
             public int compare(Card c1, Card c2) {
                 int res = c1.cost.compareTo(c2.cost);
@@ -215,32 +238,6 @@ public class CardAPI {
                 return c1.id.equals(c2.id);
             }
         });
-        if(type == STANDARD_DECK){
-            for(int i = 0; i< sStandardCards.size(); i++){
-                Card c = sStandardCards.get(i);
-                int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
-                if (cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex){
-                    cardsByClass.add(c);
-                }
-            }
-        } else if (type == WILD_DECK){
-            for(int i = 0; i< sCardsById.size(); i++){
-                Card c = sCardsById.get(i);
-                int cardClassIndex = Card.playerClassToClassIndex(c.playerClass);
-                if ((cardClassIndex == CLASS_INDEX_NEUTRAL || cardClassIndex == classIndex) &&
-                        (c.type.equals("SPELL") || c.type.equals("MINION") || c.type.equals("WEAPON")) &&
-                        c.collectible){
-                    cardsByClass.add(c);
-                }
-            }
-        }
-        return cardsByClass;
-    }
-
-    private static boolean isStandard(String set){
-        for(String s:sStandardSet){
-            if(s.equals(set)) return true;
-        }
-        return false;
+        return sortedList;
     }
 }

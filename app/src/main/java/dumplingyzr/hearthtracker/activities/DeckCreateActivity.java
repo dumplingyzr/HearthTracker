@@ -23,6 +23,7 @@ import butterknife.ButterKnife;
 import dumplingyzr.hearthtracker.Deck;
 import dumplingyzr.hearthtracker.MainActivity;
 import dumplingyzr.hearthtracker.R;
+import dumplingyzr.hearthtracker.Utils;
 
 /**
  * Created by dumplingyzr on 2016/11/27.
@@ -139,6 +140,7 @@ public class DeckCreateActivity extends AppCompatActivity {
     private void activityFinish(){
         Toast.makeText(this, "Deck is saved as \"" + mDeck.name + "\"", Toast.LENGTH_LONG).show();
         finish();
+        Utils.saveUserMetrics(this);
         Intent home = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(home);
     }
