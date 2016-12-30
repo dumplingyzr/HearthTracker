@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
         setupDrawer();
 
         if (savedInstanceState == null){
-            new CardAPI().init();
-            Utils.getUserMetrics(this);
+            new CardAPI().init(this);
+
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.fragment_container, DeckListFragment.newInstance())
@@ -148,15 +148,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(newIntent);
     }
 
-    /*public void onCardsReady(){
-        buttonStart.setEnabled(true);
-        if (hasAllPermissions()) {
-            buttonStart.setText("Start HearthTracker");
-        } else {
-            buttonStart.setText("Authorize and start HearthTracker");
-        }
-        Utils.loadUserDecks();
-    }*/
+    public void onCardsReady(){
+        Utils.getUserMetrics(this);
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

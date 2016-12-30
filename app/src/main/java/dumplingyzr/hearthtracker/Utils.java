@@ -17,7 +17,7 @@ public class Utils extends Application {
     public static Set<String> sUserDeckNames = new HashSet<>();
     public static ArrayList<Deck> sUserDecks = new ArrayList<>();
     public static String sActiveDeckName;
-    public static Deck sActiveDeck;
+    public static Deck sActiveDeck = new Deck();
 
     public static void addDeck(String deckName){
         sUserDeckNames.add(deckName);
@@ -30,7 +30,6 @@ public class Utils extends Application {
         SharedPreferences sharedPref = context.getSharedPreferences("HearthTrackerSharedPreferences", Context.MODE_PRIVATE);
         Set<String> userDeckNames = sharedPref.getStringSet("UserDeckNames", null);
         sActiveDeckName = sharedPref.getString("ActiveDeckName", "");
-        sActiveDeck = new Deck();
         sUserName = sharedPref.getString("UserName", "");
         if(userDeckNames != null) {
             for (String s : userDeckNames) {
@@ -48,7 +47,6 @@ public class Utils extends Application {
     public static void saveUserMetrics(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("HearthTrackerSharedPreferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        sActiveDeck.saveCards();
         editor.putString("ActiveDeckName", sActiveDeckName);
         editor.putString("UserName", sUserName);
         editor.putStringSet("UserDeckNames", sUserDeckNames);

@@ -42,16 +42,12 @@ public class TrackerWindow extends Service {
     private static final int WITHOUT_COUNT = 1;
 
     private CardListAdapter mAdapter;
-
-    private static SharedPreferences sSharedPref;
-    private static SharedPreferences.Editor sEditor;
+    private LogParserTask mLogReaderThread;
 
     private Context mContext = this;
-    private Intent mIntent;
 
     @Override
     public IBinder onBind(Intent intent) {
-        mIntent = intent;
         return null;
     }
 
@@ -59,8 +55,6 @@ public class TrackerWindow extends Service {
     public void onCreate() {
         super.onCreate();
         Point screenSize = new Point();
-        sSharedPref = getSharedPreferences("HearthTrackerSharedPreferences", Context.MODE_PRIVATE);
-        sEditor = sSharedPref.edit();
         mWindowManager = (WindowManager)  getSystemService(WINDOW_SERVICE);
         mWindowManager.getDefaultDisplay().getSize(screenSize);
 
@@ -108,15 +102,18 @@ public class TrackerWindow extends Service {
                 new InTrackerDeckListAdapter(Utils.sUserDecks, mAdapter, mDeckListView, imageView, this));
 
         LogParser.getInstance().setContext(this);
-        LogParserTask mLogReaderThread;
+
         mLogReaderThread = LogParser.init(mAdapter, imageView, textView);
 
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLogReaderThread.getCurrentThread().interrupt();
+                mWindowManager.removeView(mTrackerWindowView);
+                mWindowManager.removeView(mButtonView);
+                mWindowManager.removeView(mDeckListView);
                 stopSelf();
                 Utils.saveUserMetrics(mContext);
-                System.exit(0);
             }
         });
         buttonHide.setOnClickListener(new View.OnClickListener() {

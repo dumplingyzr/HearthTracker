@@ -34,11 +34,14 @@ public class CardAPI {
     private static final int STANDARD_DECK = 0;
     private static final int WILD_DECK = 1;
 
+    private MainActivity mParent;
+
     private static String[] sStandardSet = {
             "GANGS","KARA","OG","TGT","LOE","BRM","EXPERT1","CORE"
     };
     
-    public void init(){
+    public void init(MainActivity parent){
+        mParent = parent;
         sLocale = "enUS";
         sStandardCards = new SortedList<>(Card.class, new SortedList.Callback<Card>() {
             @Override
@@ -138,7 +141,7 @@ public class CardAPI {
         protected void onPostExecute(String result) {
             sCardsJson = result;
             storeCards();
-            //mMainActivity.onCardsReady();
+            mParent.onCardsReady();
         }
     }
 

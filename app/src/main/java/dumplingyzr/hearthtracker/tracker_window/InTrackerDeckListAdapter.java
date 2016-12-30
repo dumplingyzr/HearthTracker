@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import dumplingyzr.hearthtracker.Card;
 import dumplingyzr.hearthtracker.Deck;
 import dumplingyzr.hearthtracker.R;
+import dumplingyzr.hearthtracker.Utils;
+import okhttp3.internal.Util;
 
 
 /**
@@ -56,10 +58,16 @@ public class InTrackerDeckListAdapter extends RecyclerView.Adapter<InTrackerDeck
             public void onClick(View view) {
                 int pos = viewHolder.getAdapterPosition();
                 if(pos == 0){
-                    mCardListAdapter.setActiveDeck(new Deck());
+                    Deck deck = new Deck();
+                    mCardListAdapter.setActiveDeck(deck);
                     mHeroImageView.setBackgroundColor(Color.BLACK);
+                    Utils.sActiveDeck = deck;
+                    Utils.sActiveDeckName = "AUTO_DETECT";
                 } else {
-                    mCardListAdapter.setActiveDeck(mDecks.get(pos - 1));
+                    Deck deck = mDecks.get(pos - 1);
+                    mCardListAdapter.setActiveDeck(deck);
+                    Utils.sActiveDeck = deck;
+                    Utils.sActiveDeckName = deck.path;
                     int drawableId;
                     String heroId = Card.classIndexToHeroId(mDecks.get(pos - 1).classIndex);
                     drawableId = mContext.getResources().getIdentifier(heroId.toLowerCase(), "drawable", mContext.getPackageName());
