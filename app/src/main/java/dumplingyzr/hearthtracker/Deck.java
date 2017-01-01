@@ -36,6 +36,7 @@ public class Deck implements Parcelable{
     private int[] mManaCurve = new int[8];
     private static int DECK_SIZE = 30;
     private boolean mIsSaved = false;
+    public boolean isModified = false;
 
     public int numOfCards = 0;
     public String name = "AUTO_DETECT";
@@ -137,7 +138,7 @@ public class Deck implements Parcelable{
     }
 
     public void saveCards(){
-        if (mIsSaved) return;
+        if (mIsSaved && !isModified) return;
         String path = Environment.getExternalStorageDirectory().getPath()+"/Android/data/dumplingyzr.hearthtracker/files/";
         XmlSerializer serializer = Xml.newSerializer();
         StringWriter writer = new StringWriter();
@@ -163,7 +164,7 @@ public class Deck implements Parcelable{
                 serializer.endTag("", "Name");
             serializer.endTag("", "Deck");
             serializer.endDocument();
-            if(this.name.equals("AUTO_DETECT")) {
+            if(this.name.equals("AUTO_DETECT") || isModified) {
                 FileUtils.writeStringToFile(new File(path + this.name + ".deck.xml"), writer.toString());
             } else {
                 DateFormat df = new SimpleDateFormat("_yyyyMMddHHmmss");

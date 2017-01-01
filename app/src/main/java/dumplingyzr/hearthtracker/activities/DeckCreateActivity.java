@@ -58,6 +58,7 @@ public class DeckCreateActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_deck);
         ButterKnife.bind(this);
 
+        int index = getIntent().getIntExtra("deckIndex", -1);
         int mClassIndex = getIntent().getIntExtra("classIndex", 1);
         int mDeckType = getIntent().getIntExtra("deckType", 0);
         String mDeckName = getIntent().getStringExtra("deckName");
@@ -69,11 +70,16 @@ public class DeckCreateActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        mDeck.classIndex = mClassIndex;
-        mDeck.name = mDeckName;
-        mDeck.type = mDeckType;
+        if(index == -1) {
+            mDeck.classIndex = mClassIndex;
+            mDeck.name = mDeckName;
+            mDeck.type = mDeckType;
+        }
+        else {
+            mDeck = Utils.sUserDecks.get(index);
+        }
 
-        mCurrDeckAdapter = new DeckEditAdapter(this, mDeck);
+        mCurrDeckAdapter = new DeckEditAdapter(this, mDeck, index == -1);
         mCardPoolAdapter = new DeckCreateAdapter(this, mClassIndex, mDeck, mCurrDeckAdapter);
         LinearLayoutManager mCurrDeckLayoutManager = new LinearLayoutManager(this);
         LinearLayoutManager mCardPoolLayoutManager = new LinearLayoutManager(this);

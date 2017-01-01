@@ -1,4 +1,4 @@
-package dumplingyzr.hearthtracker.activities;
+package dumplingyzr.hearthtracker.fragments;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -17,21 +17,20 @@ import dumplingyzr.hearthtracker.Card;
 import dumplingyzr.hearthtracker.CardAPI;
 import dumplingyzr.hearthtracker.Deck;
 import dumplingyzr.hearthtracker.R;
+import dumplingyzr.hearthtracker.activities.DeckCreateActivity;
 
 
 /**
  * Created by dumplingyzr on 2016/11/24.
  */
 
-public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHolder>{
+public class DeckListCardAdapter extends RecyclerView.Adapter<DeckListCardAdapter.ViewHolder>{
     private Context mContext;
     private SortedList<Card> mCards;
     private Deck mDeck;
     private HashMap<String, Integer> mCardCount = new HashMap<>();
-    private DeckCreateActivity mDeckCreateActivity;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
         public View mView;
         public ImageView mImageView;
         public TextView mTextViewName;
@@ -48,8 +47,8 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
     }
 
     @Override
-    public DeckEditAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_list_item_thick, parent, false);
+    public DeckListCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_list_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -60,34 +59,6 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
         TextView textViewName = viewHolder.mTextViewName;
         TextView textViewCost = viewHolder.mTextViewCost;
         TextView textViewCount = viewHolder.mTextViewCount;
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int pos = viewHolder.getAdapterPosition();
-                if (pos < 0) return;
-                Card c = mCards.get(pos);
-                if (mDeck.removeCard(c)) {
-                    removeCard(c);
-                    mDeckCreateActivity.updateNumOfCards();
-                }
-            }
-        });
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                int action = event.getAction();
-                switch (action){
-                    case MotionEvent.ACTION_DOWN:
-                        view.setAlpha((float)0.5);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        view.setAlpha(1);
-                    default:
-                }
-                return false;
-            }
-        });
 
         Card card = mCards.get(position);
 
@@ -115,7 +86,6 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
             int drawableId;
             drawableId = mContext.getResources().getIdentifier(card.id.toLowerCase(), "drawable", mContext.getPackageName());
             imageView.setBackground(mContext.getDrawable(drawableId));
-            //view.getBackground().setAlpha(191);
         } catch (Resources.NotFoundException e) {
             System.out.println(card.name);
         }
@@ -124,47 +94,17 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
 
     @Override
     public int getItemCount() {
+        if(mCards.get(mCards.size()-1).name.equals("unknown")){
+            return mCards.size() - 1;
+        }
         return mCards.size();
     }
 
-    public DeckEditAdapter(DeckCreateActivity parent, Deck deck, boolean newDeck) {
-        mContext = parent;
-        mDeckCreateActivity = parent;
+    public DeckListCardAdapter(Context context, Deck deck) {
+        mContext = context;
         mDeck = deck;
-        if(newDeck) {
-            mCards = CardAPI.newSortedList();
-        } else {
-            mCards = mDeck.getCards();
-            mCardCount = mDeck.getCardCount();
-        }
-    }
-
-    public void addCard(Card card){
-        if(mCardCount.containsKey(card.id)) {
-            mCardCount.put(card.id, mCardCount.get(card.id) + 1);
-        } else {
-            mCardCount.put(card.id, 1);
-            mCards.add(card);
-        }
-        notifyDataSetChanged();
-    }
-
-    public void removeCard(Card card) {
-        for(int i=0;i<mCards.size();i++){
-            if(mCards.get(i).id.equals(card.id)){
-                int count = mCardCount.get(card.id);
-                if(count > 1){
-                    mCardCount.put(card.id, count - 1);
-                    notifyDataSetChanged();
-                    return;
-                } else {
-                    mCardCount.remove(card.id);
-                    mCards.removeItemAt(i);
-                    notifyDataSetChanged();
-                    return;
-                }
-            }
-        }
+        mCards = deck.getCards();
+        mCardCount = deck.getCardCount();
     }
 
 }

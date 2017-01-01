@@ -25,6 +25,7 @@ import java.io.InputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dumplingyzr.hearthtracker.activities.ClassSelectActivity;
+import dumplingyzr.hearthtracker.fragments.DeckListAdapter;
 import dumplingyzr.hearthtracker.fragments.DeckListFragment;
 import dumplingyzr.hearthtracker.tracker_window.TrackerWindow;
 
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String HEARTHSTONE_PACKAGE_ID = "com.blizzard.wtcg.hearthstone";
     private File mFile = new File(HEARTHSTONE_FILES_DIR + "log.config");
     private ActionBarDrawerToggle mDrawerToggle;
+    private DeckListAdapter mDeckListAdapter;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
@@ -57,24 +59,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null){
             new CardAPI().init(this);
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, DeckListFragment.newInstance())
-                    .commit();
         }
-
     }
 
-    /*public boolean hasAllPermissions() {
-        boolean has = checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            has &= android.provider.Settings.canDrawOverlays(this);
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(mDeckListAdapter != null){
+            mDeckListAdapter.updateDeckList();
         }
-        return has && mFile.exists();
-    }*/
+    }
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -150,6 +144,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void onCardsReady(){
         Utils.getUserMetrics(this);
+        DeckListFragment deckListFragment = DeckListFragment.newInstance();
+        deckListFragment.setContext(this);
+        mDeckListAdapter = deckListFragment.getAdapter();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_container, deckListFragment)
+                .commit();
     }
 
     @Override

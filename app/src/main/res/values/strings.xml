@@ -2,6 +2,12 @@
     <string name="app_name">HearthTracker</string>
     <string name="open_drawer">open drawer</string>
     <string name="close_drawer">close drawer</string>
+    <string-array name="deck_edit_options">
+        <item>Set as active deck</item>
+        <item>Edit deck</item>
+        <item>Delete deck</item>
+        <item>Cancel</item>
+    </string-array>
     <string-array name="card_cost_filter">
         <item>All</item>
         <item>0</item>

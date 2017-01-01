@@ -171,48 +171,6 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
         init();
     }
 
-    public void addCard(Card card){
-        if(mCardCount.containsKey(card.id)) {
-            mCardCount.put(card.id, mCardCount.get(card.id) + 1);
-            //mAnimatePosition = findCardById(card.id);
-            notifyDataSetChanged();
-        } else {
-            mCardCount.put(card.id, 1);
-            mCards.add(card);
-        }
-    }
-
-    public void removeCard(Card card) {
-        for(int i=0;i<mCards.size();i++){
-            if(mCards.get(i).id.equals(card.id)){
-                int count = mCardCount.get(card.id);
-                if(count > 1){
-                    mCardCount.put(card.id, count - 1);
-                    notifyDataSetChanged();
-                    return;
-                } else {
-                    mCardCount.remove(card.id);
-                    mCards.removeItemAt(findCardById(card.id));
-                    return;
-                }
-            }
-        }
-    }
-
-    public void clearAll(){
-        int size = mCards.size();
-        mCards.clear();
-        mCardCount.clear();
-        notifyItemRangeRemoved(0, size);
-    }
-
-    public int findCardById(String key){
-        for(int i=0;i<mCards.size();i++){
-            if(mCards.get(i).id.equals(key)) return i;
-        }
-        return -1;
-    }
-
     public void filter(int cost, int set, int _class) {
         mCards = CardAPI.getCardsByClass(mClassIndex, mDeck.type);
         if(cost == 0 && set == 0 && _class == 0) {

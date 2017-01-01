@@ -3,7 +3,6 @@ package dumplingyzr.hearthtracker.tracker_window;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
@@ -20,8 +19,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.HashSet;
-import java.util.Set;
 
 import dumplingyzr.hearthtracker.Card;
 import dumplingyzr.hearthtracker.Deck;
@@ -29,6 +26,8 @@ import dumplingyzr.hearthtracker.Utils;
 import dumplingyzr.hearthtracker.R;
 import dumplingyzr.hearthtracker.parsers.LogParser;
 import dumplingyzr.hearthtracker.parsers.LogParserTask;
+
+import static java.lang.Math.min;
 
 public class TrackerWindow extends Service {
     private WindowManager mWindowManager;
@@ -75,7 +74,7 @@ public class TrackerWindow extends Service {
                 mWindowWidth, 0, dp2Pixel(70), mTrackerWindowView);
         addView(dp2Pixel(35),
                 mWindowWidth, 0, dp2Pixel(35), mButtonView);
-        addView(dp2Pixel(37)*(Utils.sUserDecks.size()+1),
+        addView(min(dp2Pixel(37)*(Utils.sUserDecks.size()+1),screenSize.x - dp2Pixel(70)),
                 mWindowWidth, 0, dp2Pixel(70), mDeckListView);
 
         final ImageButton buttonStop = (ImageButton) mButtonView.findViewById(R.id.stop);

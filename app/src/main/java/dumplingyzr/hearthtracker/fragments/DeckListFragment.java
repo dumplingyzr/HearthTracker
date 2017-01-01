@@ -1,5 +1,6 @@
 package dumplingyzr.hearthtracker.fragments;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +19,8 @@ import dumplingyzr.hearthtracker.R;
  */
 
 public class DeckListFragment extends Fragment{
+    private Context mContext;
+    private DeckListAdapter mAdapter;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
 
     public static DeckListFragment newInstance() {
@@ -37,6 +40,15 @@ public class DeckListFragment extends Fragment{
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
-        recyclerView.setAdapter(new DeckListAdapter());
+        recyclerView.setAdapter(mAdapter);
+    }
+
+    public void setContext(Context context){
+        mContext = context;
+        mAdapter = new DeckListAdapter(mContext);
+    }
+
+    public DeckListAdapter getAdapter(){
+        return mAdapter;
     }
 }
