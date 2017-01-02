@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <include layout="@layout/toolbar"/>
-
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="horizontal"
             android:weightSum="10"
@@ -24,7 +23,6 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent">
             </Spinner>
-
             <Spinner
                 android:id="@+id/filter_set"
                 android:textSize="14sp"
@@ -33,7 +31,6 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent">
             </Spinner>
-
             <Spinner
                 android:id="@+id/filter_class"
                 android:textSize="14sp"
@@ -42,15 +39,12 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent">
             </Spinner>
-
         </LinearLayout>
-
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="horizontal"
             android:weightSum="2"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_card_pool"
                 android:background="#cfcfcf"

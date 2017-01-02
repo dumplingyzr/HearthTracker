@@ -94,8 +94,10 @@ public class DeckListCardAdapter extends RecyclerView.Adapter<DeckListCardAdapte
 
     @Override
     public int getItemCount() {
-        if(mCards.get(mCards.size()-1).name.equals("unknown")){
-            return mCards.size() - 1;
+        if(mCards.size()>0) {
+            if (mCards.get(mCards.size() - 1).name.equals("unknown")) {
+                return mCards.size() - 1;
+            }
         }
         return mCards.size();
     }

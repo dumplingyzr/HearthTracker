@@ -131,11 +131,16 @@ public class DeckEditAdapter extends RecyclerView.Adapter<DeckEditAdapter.ViewHo
         mContext = parent;
         mDeckCreateActivity = parent;
         mDeck = deck;
-        if(newDeck) {
-            mCards = CardAPI.newSortedList();
-        } else {
-            mCards = mDeck.getCards();
-            mCardCount = mDeck.getCardCount();
+        mCards = CardAPI.newSortedList();
+        if(!newDeck) {
+            SortedList<Card> temp = mDeck.getCards();
+            HashMap<String, Integer> map = mDeck.getCardCount();
+            for(int i=0;i<temp.size();i++){
+                Card c = temp.get(i);
+                mCards.add(c);
+                mCardCount.put(c.id, map.get(c.id));
+            }
+            notifyDataSetChanged();
         }
     }
 

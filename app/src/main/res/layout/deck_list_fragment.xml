@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/CoordinatorLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/recycler_view"
+            android:layout_marginBottom="80dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <LinearLayout
+            android:layout_marginTop="-80dp"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:text="Start"
+                android:textColor="#000000"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content" />
+            <ImageButton
+                android:id="@+id/start_tracker"
+                android:layout_marginEnd="8dp"
+                android:background="@color/colorPrimary"
+                android:src="@drawable/ic_play_circle_outline_white"
+                android:layout_width="80dp"
+                android:layout_height="match_parent" />
+            <ImageButton
+                android:id="@+id/new_deck"
+                android:layout_marginStart="8dp"
+                android:background="@color/colorPrimary"
+                android:src="@drawable/ic_add_circle_outline_white"
+                android:layout_width="80dp"
+                android:layout_height="match_parent" />
+            <TextView
+                android:gravity="center"
+                android:text="New Deck"
+                android:textColor="#000000"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
+
+

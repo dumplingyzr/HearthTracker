@@ -164,8 +164,10 @@ public class Deck implements Parcelable{
                 serializer.endTag("", "Name");
             serializer.endTag("", "Deck");
             serializer.endDocument();
-            if(this.name.equals("AUTO_DETECT") || isModified) {
+            if(this.name.equals("AUTO_DETECT")) {
                 FileUtils.writeStringToFile(new File(path + this.name + ".deck.xml"), writer.toString());
+            } else if(isModified){
+                FileUtils.writeStringToFile(new File(path + this.path + ".deck.xml"), writer.toString());
             } else {
                 DateFormat df = new SimpleDateFormat("_yyyyMMddHHmmss");
                 Date date = new Date();
@@ -180,7 +182,7 @@ public class Deck implements Parcelable{
         }
     }
 
-    public void createFromXml(String deckName){
+    public boolean createFromXml(String deckName){
 
         this.path = deckName;
 
@@ -229,8 +231,9 @@ public class Deck implements Parcelable{
             }
             this.mIsSaved = true;
             System.out.println("Deck Created");
+            return true;
         } catch (Exception e){
-
+            return false;
         }
     }
 

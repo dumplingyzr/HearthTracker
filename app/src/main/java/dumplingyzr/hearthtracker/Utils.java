@@ -39,11 +39,12 @@ public class Utils extends Application {
         if(userDeckNames != null) {
             for (String s : userDeckNames) {
                 Deck deck = new Deck();
-                deck.createFromXml(s);
-                sUserDecks.add(deck);
-                sUserDeckNames.add(s);
-                if(s.equals(sActiveDeckName)){
-                    sActiveDeck = deck;
+                if(deck.createFromXml(s)) {
+                    sUserDecks.add(deck);
+                    sUserDeckNames.add(s);
+                    if (s.equals(sActiveDeckName)) {
+                        sActiveDeck = deck;
+                    }
                 }
             }
         }

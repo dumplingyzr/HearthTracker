@@ -77,6 +77,8 @@ public class DeckCreateActivity extends AppCompatActivity {
         }
         else {
             mDeck = Utils.sUserDecks.get(index);
+            mClassIndex = mDeck.classIndex;
+            updateNumOfCards();
         }
 
         mCurrDeckAdapter = new DeckEditAdapter(this, mDeck, index == -1);
@@ -109,9 +111,9 @@ public class DeckCreateActivity extends AppCompatActivity {
         classFilterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mClassFilterSpinner.setAdapter(classFilterAdapter);
 
-        setupSpinner(mCostFilterSpinner, R.id.filter_cost);
-        setupSpinner(mSetFilterSpinner, R.id.filter_set);
-        setupSpinner(mClassFilterSpinner, R.id.filter_class);
+        setupSpinner(mCostFilterSpinner, R.id.filter_cost, costFilterAdapter.getCount()-1);
+        setupSpinner(mSetFilterSpinner, R.id.filter_set, setFilterAdapter.getCount()-1);
+        setupSpinner(mClassFilterSpinner, R.id.filter_class, classFilterAdapter.getCount()-1);
 
     }
     @Override
@@ -155,19 +157,31 @@ public class DeckCreateActivity extends AppCompatActivity {
         mNumOfCardsTextView.setText(String.format("%d/30",mDeck.numOfCards));
     }
 
-    private void setupSpinner(Spinner spinner, final int spinnerId){
+    private void setupSpinner(Spinner spinner, final int spinnerId, final int size){
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                 switch (spinnerId){
                     case R.id.filter_class:
-                        mFilterClass = pos;
+                        if(pos == size){
+                            mFilterClass = 0;
+                        } else {
+                            mFilterClass = pos;
+                        }
                         break;
                     case R.id.filter_cost:
-                        mFilterCost = pos;
+                        if(pos == size){
+                            mFilterCost = 0;
+                        } else {
+                            mFilterCost = pos;
+                        }
                         break;
                     case R.id.filter_set:
-                        mFilterSet = pos;
+                        if(pos == size){
+                            mFilterSet = 0;
+                        } else {
+                            mFilterSet = pos;
+                        }
                 }
                 mCardPoolAdapter.filter(mFilterCost, mFilterSet, mFilterClass);
             }

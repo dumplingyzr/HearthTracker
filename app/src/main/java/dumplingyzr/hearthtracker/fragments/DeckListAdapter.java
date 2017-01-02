@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -50,7 +49,7 @@ public class DeckListAdapter extends RecyclerView.Adapter<DeckListAdapter.ViewHo
 
     @Override
     public DeckListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.deck_list_item_fragment, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.deck_list_item_in_fragment, parent, false);
         return new DeckListAdapter.ViewHolder(view);
     }
 

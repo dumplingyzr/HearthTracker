@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void LaunchLogWindow() {
+    public void LaunchLogWindow() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkCallingOrSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                     || checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void LaunchClassSelectActivity() {
+    public void LaunchClassSelectActivity() {
         Intent newIntent = new Intent();
         newIntent.setClass(this, ClassSelectActivity.class);
         startActivity(newIntent);
