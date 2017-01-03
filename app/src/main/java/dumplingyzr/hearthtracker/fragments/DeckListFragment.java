@@ -47,7 +47,14 @@ public class DeckListFragment extends Fragment{
 
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
-        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int dpi = displaymetrics.densityDpi;
+        int width = displaymetrics.widthPixels;
+        float dp = width / ((float)dpi / DisplayMetrics.DENSITY_DEFAULT);
+
+        int nCol = (int) dp/200;
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(nCol, 1));
         recyclerView.setAdapter(mAdapter);
         newDeck.setOnClickListener(new View.OnClickListener() {
             @Override
