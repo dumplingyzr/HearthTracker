@@ -30,12 +30,20 @@
             tools:background="@drawable/hexfrog" />
         <ImageView
             android:id="@+id/gradient_image"
-            android:layout_width="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_width="120dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="60dp"
             android:contentDescription="card_image"
             android:background="@drawable/gradient"
             tools:background="@drawable/gradient" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="180dp"
+            android:contentDescription="card_image"
+            android:background="#ff3f3f3f"
+            tools:background="#ff3f3f3f" />
         <TextView
             android:id="@+id/card"
             android:textSize="14sp"
