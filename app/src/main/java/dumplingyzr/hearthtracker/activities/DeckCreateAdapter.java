@@ -55,7 +55,6 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
     private SortedList<Card> mCards;
     private SortedList<Card> mFilteredCards;
     private DeckEditAdapter mDeckEditAdapter;
-    private HashMap<String, Integer> mCardCount = new HashMap<>();
     private Deck mDeck;
     private int mClassIndex;
     private DeckCreateActivity mDeckCreateActivity;
@@ -160,20 +159,21 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
         return mCards.size();
     }
 
-    public DeckCreateAdapter(DeckCreateActivity parent, int classIndex, Deck deck, DeckEditAdapter deckEditAdapter) {
+    public DeckCreateAdapter(DeckCreateActivity parent, Deck deck, DeckEditAdapter deckEditAdapter) {
         mContext = parent;
         mDeckCreateActivity = parent;
         mDeckEditAdapter = deckEditAdapter;
         mDeck = deck;
-        mClassIndex = classIndex;
+        mClassIndex = deck.classIndex;
         mFilteredCards = CardAPI.newSortedList();
         mCards = CardAPI.newSortedList();
         init();
     }
 
-    public void filter(int cost, int set, int _class) {
+    public void filter(int cost, int set, int _class, String word) {
         mCards = CardAPI.getCardsByClass(mClassIndex, mDeck.type);
-        if(cost == 0 && set == 0 && _class == 0) {
+        word = word.toLowerCase();
+        if(cost == 0 && set == 0 && _class == 0 && word.equals("")) {
             notifyDataSetChanged();
             return;
         }
@@ -184,7 +184,10 @@ public class DeckCreateAdapter extends RecyclerView.Adapter<DeckCreateAdapter.Vi
             if(set != 0 && !c.set.equals(setIndex2String(set))) continue;
             if(_class == 1 && !c.playerClass.equals(Card.classIndexToPlayerClass(mClassIndex))) continue;
             if(_class == 2 && !c.playerClass.equals("NEUTRAL")) continue;
-            mFilteredCards.add(c);
+            try {
+                if (word.equals("") || c.name.toLowerCase().contains(word) || c.race.toLowerCase().equals(word))
+                    mFilteredCards.add(c);
+            } catch (NullPointerException e){}
         }
         mCards = mFilteredCards;
         notifyDataSetChanged();

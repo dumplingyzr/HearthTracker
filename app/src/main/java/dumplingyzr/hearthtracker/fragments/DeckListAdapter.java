@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,14 +40,14 @@ public class DeckListAdapter extends RecyclerView.Adapter<DeckListAdapter.ViewHo
         public ImageView mClassImageView;
         public TextView mDeckNameTextView;
         public RecyclerView mRecyclerView;
-        public Spinner mSpinner;
+        public ImageButton mImageButton;
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mClassImageView = (ImageView) view.findViewById(R.id.class_image);
             mDeckNameTextView = (TextView) view.findViewById(R.id.deck_name);
             mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-            mSpinner = (Spinner) view.findViewById(R.id.edit_deck);
+            mImageButton = (ImageButton) view.findViewById(R.id.edit_deck);
         }
     }
 
@@ -77,31 +81,35 @@ public class DeckListAdapter extends RecyclerView.Adapter<DeckListAdapter.ViewHo
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         recyclerView.setAdapter(new DeckListCardAdapter(mContext, deck));
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext,
-                R.array.deck_edit_options, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        viewHolder.mSpinner.setAdapter(adapter);
-        viewHolder.mSpinner.setSelection(3, false);
-        viewHolder.mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        viewHolder.mImageButton.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                if(pos == 0){
-                    Utils.sActiveDeck = deck;
-                    Utils.sActiveDeckName = deck.path;
-                    Toast.makeText(mContext, deck.name + " is set as active deck",Toast.LENGTH_LONG).show();
-                } else if (pos == 1){
-                    deck.isModified = true;
-                    LaunchDeckCreateActivity(viewHolder.getAdapterPosition());
-                } else if (pos == 2){
-                    Utils.deleteUserMetrics(mContext, viewHolder.getAdapterPosition());
-                    Utils.saveUserMetrics(mContext);
-                    notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
+            public void onClick(View v){
+                PopupMenu popup = new PopupMenu(mContext, v);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.deck_edit_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()){
+                            case R.id.set_active:
+                                Utils.sActiveDeck = deck;
+                                Utils.sActiveDeckName = deck.path;
+                                Toast.makeText(mContext, deck.name + " is set as active deck",Toast.LENGTH_LONG).show();
+                                return true;
+                            case R.id.edit_deck:
+                                deck.isModified = true;
+                                LaunchDeckCreateActivity(viewHolder.getAdapterPosition());
+                                return true;
+                            case R.id.delete_deck:
+                                Utils.deleteUserMetrics(mContext, viewHolder.getAdapterPosition());
+                                Utils.saveUserMetrics(mContext);
+                                notifyDataSetChanged();
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
             }
         });
     }

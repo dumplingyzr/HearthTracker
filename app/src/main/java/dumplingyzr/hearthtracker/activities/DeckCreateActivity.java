@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,12 +27,14 @@ import dumplingyzr.hearthtracker.Deck;
 import dumplingyzr.hearthtracker.MainActivity;
 import dumplingyzr.hearthtracker.R;
 import dumplingyzr.hearthtracker.Utils;
+import dumplingyzr.hearthtracker.fragments.CardSearchDialog;
 
 /**
  * Created by dumplingyzr on 2016/11/27.
  */
 
-public class DeckCreateActivity extends AppCompatActivity {
+public class DeckCreateActivity extends AppCompatActivity
+        implements CardSearchDialog.NoticeDialogListener{
     private static final int STANDARD_DECK = 0;
     private static final int WILD_DECK = 1;
 
@@ -39,6 +44,7 @@ public class DeckCreateActivity extends AppCompatActivity {
     private int mFilterCost;
     private int mFilterSet;
     private int mFilterClass;
+    private String mSearchWord = "";
 
     private Deck mDeck = new Deck();
 
@@ -51,6 +57,8 @@ public class DeckCreateActivity extends AppCompatActivity {
     @BindView(R.id.filter_set) Spinner mSetFilterSpinner;
 
     @BindView(R.id.CoordinatorLayout) CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.search) ImageButton searchButton;
+    @BindView(R.id.search_content) TextView editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,31 +66,30 @@ public class DeckCreateActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_deck);
         ButterKnife.bind(this);
 
-        int index = getIntent().getIntExtra("deckIndex", -1);
-        int mClassIndex = getIntent().getIntExtra("classIndex", 1);
-        int mDeckType = getIntent().getIntExtra("deckType", 0);
-        String mDeckName = getIntent().getStringExtra("deckName");
+        int deckIndex = getIntent().getIntExtra("deckIndex", -1);
+        int classIndex = getIntent().getIntExtra("classIndex", 1);
+        int deckType = getIntent().getIntExtra("deckType", 0);
+        String deckName = getIntent().getStringExtra("deckName");
 
-        toolbar.setTitle(mDeckName);
+        if(deckIndex == -1) {
+            mDeck.classIndex = classIndex;
+            mDeck.name = deckName;
+            mDeck.type = deckType;
+        }
+        else {
+            mDeck = Utils.sUserDecks.get(deckIndex);
+            updateNumOfCards();
+        }
+
+        toolbar.setTitle(mDeck.name);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        if(index == -1) {
-            mDeck.classIndex = mClassIndex;
-            mDeck.name = mDeckName;
-            mDeck.type = mDeckType;
-        }
-        else {
-            mDeck = Utils.sUserDecks.get(index);
-            mClassIndex = mDeck.classIndex;
-            updateNumOfCards();
-        }
-
-        mCurrDeckAdapter = new DeckEditAdapter(this, mDeck, index == -1);
-        mCardPoolAdapter = new DeckCreateAdapter(this, mClassIndex, mDeck, mCurrDeckAdapter);
+        mCurrDeckAdapter = new DeckEditAdapter(this, mDeck, deckIndex == -1);
+        mCardPoolAdapter = new DeckCreateAdapter(this, mDeck, mCurrDeckAdapter);
         LinearLayoutManager mCurrDeckLayoutManager = new LinearLayoutManager(this);
         LinearLayoutManager mCardPoolLayoutManager = new LinearLayoutManager(this);
         mCurrDeckView.setLayoutManager(mCurrDeckLayoutManager);
@@ -96,7 +103,7 @@ public class DeckCreateActivity extends AppCompatActivity {
         mCostFilterSpinner.setAdapter(costFilterAdapter);
 
         ArrayAdapter<CharSequence> setFilterAdapter;
-        if(mDeckType == STANDARD_DECK) {
+        if(deckType == STANDARD_DECK) {
             setFilterAdapter = ArrayAdapter.createFromResource(this,
                     R.array.card_set_standard_filter, android.R.layout.simple_spinner_item);
         } else {
@@ -115,6 +122,22 @@ public class DeckCreateActivity extends AppCompatActivity {
         setupSpinner(mSetFilterSpinner, R.id.filter_set, setFilterAdapter.getCount()-1);
         setupSpinner(mClassFilterSpinner, R.id.filter_class, classFilterAdapter.getCount()-1);
 
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText("");
+                mSearchWord = "";
+                mCardPoolAdapter.filter(mFilterCost, mFilterSet, mFilterClass, mSearchWord);
+            }
+        });
+
+        editText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogFragment dialog = new CardSearchDialog();
+                dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
+            }
+        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -124,24 +147,28 @@ public class DeckCreateActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected (MenuItem item){
-        if (item.getItemId() != R.id.done) return false;
-        if (mDeck.isComplete()) {
-            mDeck.saveCards();
-            activityFinish();
-            return true;
-        } else {
-            Snackbar snackbar = Snackbar
-                    .make(coordinatorLayout, "Deck is not completed", Snackbar.LENGTH_LONG)
-                    .setActionTextColor(Color.YELLOW)
-                    .setAction("Save Anyway", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            mDeck.saveCards();
-                            activityFinish();
-                        }
-                    });
-            snackbar.show();
-            return true;
+        switch(item.getItemId()) {
+            case R.id.done:
+                if (mDeck.isComplete()) {
+                    mDeck.saveCards();
+                    activityFinish();
+                    return true;
+                } else {
+                    Snackbar snackbar = Snackbar
+                            .make(coordinatorLayout, "Deck is not completed", Snackbar.LENGTH_LONG)
+                            .setActionTextColor(Color.YELLOW)
+                            .setAction("Save Anyway", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mDeck.saveCards();
+                                    activityFinish();
+                                }
+                            });
+                    snackbar.show();
+                    return true;
+                }
+            default:
+                return false;
         }
     }
 
@@ -183,7 +210,7 @@ public class DeckCreateActivity extends AppCompatActivity {
                             mFilterSet = pos;
                         }
                 }
-                mCardPoolAdapter.filter(mFilterCost, mFilterSet, mFilterClass);
+                mCardPoolAdapter.filter(mFilterCost, mFilterSet, mFilterClass, mSearchWord);
             }
 
             @Override
@@ -191,5 +218,11 @@ public class DeckCreateActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void onDialogPositiveClick(CardSearchDialog dialog){
+        editText.setText(dialog.mSearchContent);
+        mSearchWord = dialog.mSearchContent;
+        mCardPoolAdapter.filter(mFilterCost, mFilterSet, mFilterClass, mSearchWord);
     }
 }
